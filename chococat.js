@@ -297,11 +297,11 @@ function main() {
         // fucinho
         drawCube(0.1, 0.5, 0.2, 0.0, 0.0, -0.2, 0.55, 1.5, 1, 1);
         //orelha - esq
-        drawCube(0.10, 1.0, 0.7, 0.7, -0.30, 0.55, 0.45, 1, 1, 1);  //rosa
+        drawCube(0.10, 1.0, 0.97, 0.7, -0.30, 0.55, 0.45, 1, 1, 1);  //amarelinho
         drawCube(0.1, rB, gB, bB, -0.30, 0.75, 0.4, 1, 1.5, 1.5);   //preto
         drawCube(0.25, rB, gB, bB, -0.30, 0.55, 0.35, 1, 1, 1);     //preto maior
         //orelha - dir
-        drawCube(0.10, 1.0, 0.7, 0.7, 0.30, 0.55, 0.45, 1, 1, 1);   //rosa
+        drawCube(0.10, 1.0, 0.97, 0.7, 0.30, 0.55, 0.45, 1, 1, 1);   //amarelinho
         drawCube(0.1, rB, gB, bB, 0.30, 0.75, 0.4, 1, 1.5, 1.5);    //preto
         drawCube(0.25, rB, gB, bB, 0.30, 0.55, 0.35, 1, 1, 1);      //preto maior
 
