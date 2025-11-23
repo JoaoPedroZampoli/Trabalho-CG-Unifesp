@@ -273,7 +273,7 @@ function main() {
     function drawPompompurin() {
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        rotaciona_camera();
+        // rotaciona_camera();
 
         // Cores
         const rY = 0.99, gY = 0.96, bY = 0.69; // Amarelo
@@ -306,7 +306,7 @@ function main() {
         drawCube(0.35, rY, gY, bY, -0.3, -1.4, 0.1, 1.0, 0.8, 1.2);
         drawCube(0.35, rY, gY, bY, 0.3, -1.4, 0.1, 1.0, 0.8, 1.2);
 
-        requestAnimationFrame(drawPompompurin);
+        // requestAnimationFrame(drawPompompurin);
     }
 
     drawPompompurin();
