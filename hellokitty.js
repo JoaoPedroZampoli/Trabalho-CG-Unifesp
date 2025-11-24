@@ -278,36 +278,52 @@ function main() {
         // Cor do HelloKitty
         const rB = 1.0, gB = 1.0, bB = 1.0; // branco
 
-        //       tam, r, g, b, add_x, add_y, add_z, sx, sy, sz
+        //       tam, r, g, b, add_x, add_y, add_z, sx, sy, sz 
+        // add x lado; add y cima/baixo; add z frente tras
         //cabeça
-        drawCube(1.0, rB, gB, bB, 0, 0, 0, 1, 1, 1);                           // cima
-        drawCube(0.2, rB, gB, bB, 0, -0.35, 0.05, 5, 1.5, 5);                  // baixo bigode
-        theta_z = -80; drawCube(0.08, rB, gB, bB, 0.5, -0.2, 0.4, 1, 6, 1);    // bigode direito
-        theta_z =  70; drawCube(0.08, rB, gB, bB, 0.5, -0.25, 0.4, 1, 6, 1);   // bigode direito
-        theta_z =  80; drawCube(0.08, rB, gB, bB, -0.5, -0.2, 0.4, 1, 6, 1);   // bigode esquerdo
-        theta_z = -70; drawCube(0.08, rB, gB, bB, -0.5, -0.25, 0.4, 1, 6, 1);  // bigode esquerdo
+        drawCube(1.0, rB, gB, bB, 0, -0.15, 0, 1.2, 0.8, 1);                           // cima
+        //drawCube(0.2, rB, 0, bB, 0, -0.35, 0.05, 5, 1.5, 5);                  // baixo bigode
+        theta_z = -60; drawCube(0.06, 0, 0, 0, 0.6, -0.1, 0.5, 1, 3, 1);    // bigode direito
+        theta_z =  50; drawCube(0.06, 0, 0, 0, 0.6, -0.47, 0.5, 1, 3, 1);   // bigode direito embaixo
+        theta_z =  90; drawCube(0.06, 0, 0, 0, 0.6, -0.3, 0.5, 1, 3, 1);   // bigode direito hk
+
+        theta_z = 60; drawCube(0.06, 0, 0, 0, -0.6, -0.1, 0.5, 1, 3, 1);   // bigode esquerdo
+        theta_z = -50; drawCube(0.06, 0, 0, 0, -0.6, -0.47, 0.5, 1, 3, 1);  // bigode esquerdo
+        theta_z = -90; drawCube(0.06, 0, 0, 0, -0.6, -0.3, 0.5, 1, 3, 1);  // bigode esquerdo hk
+        theta_z = 65; drawCube(0.22, 0.824, 0.275, 0.275, 0.15, 0.27, 0.5, 1, 1.2, 1);   // lacinho esq
+        theta_z = 65; drawCube(0.22, 0.824, 0.275, 0.275, 0.42, 0.14, 0.5, 1, 1.2, 1);   // lacinho dir
+        theta_z = 65; drawCube(0.14, 0.718, 0.204, 0.204, 0.28, 0.21, 0.6, 1, 1.2, 1);   // lacinho quadrado meio
+        theta_z = 65; drawCube(0.07, 0.725, 0.075, 0.388, 0.409, 0.16, 0.6, 1, 1.2, 1);   // lacinho quadrado meio dir
+        theta_z = 65; drawCube(0.07, 0.725, 0.075, 0.388, 0.165, 0.27, 0.6, 1, 1.2, 1);   // lacinho quadrado meio esq
         theta_z = 0;
 
         //olho - esquerdo (em relacao a minha visao)
-        drawCube(0.1, 0, 0, 0, -0.25, -0.15, 0.6, 1, 2, 1);      // pretinho
+        drawCube(0.1, 0, 0, 0, -0.25, -0.18, 0.6, 1, 2, 1);      // pretinho
         //olho - direito (em relacao a minha visao)
-        drawCube(0.1, 0, 0, 0, 0.25, -0.15, 0.6, 1, 2, 1);       // oretinho
+        drawCube(0.1, 0, 0, 0, 0.25, -0.18, 0.6, 1, 2, 1);       // oretinho
         // fucinho
-        drawCube(0.1, 0.5, 0.2, 0.0, 0.0, -0.2, 0.55, 1.5, 1, 1);
+        drawCube(0.1, 0.93, 0.93, 0.455, 0.0, -0.25, 0.55, 1.5, 1, 1);
         //orelha - esq
-        drawCube(0.1, rB, gB, bB, -0.30, 0.75, 0.4, 1, 1.5, 1.5);   //preto
-        drawCube(0.25, rB, gB, bB, -0.30, 0.55, 0.35, 1, 1, 1);     //preto maior
+        //drawCube(0.1, rB, gB, bB, -0.30, 0.75, 0.4, 1, 1.5, 1.5);   //preto
+        drawCube(0.25, rB, gB, bB, -0.30, 0.35, 0.35, 1, 1, 1);     //preto maior
         //orelha - dir
-        drawCube(0.1, rB, gB, bB, 0.30, 0.75, 0.4, 1, 1.5, 1.5);    //preto
-        drawCube(0.25, rB, gB, bB, 0.30, 0.55, 0.35, 1, 1, 1);      //preto maior
+        //drawCube(0.1, rB, gB, bB, 0.30, 0.75, 0.4, 1, 1.5, 1.5);    //preto
+        drawCube(0.25, rB, gB, bB, 0.30, 0.35, 0.35, 1, 1, 1);      //preto maior
 
         theta_z = -15; drawCube(0.08, rB, gB, bB, -0.5, -0.9, 0.4, 1.5, 6, 1);  // braço esquerda
         theta_z =  15; drawCube(0.08, rB, gB, bB, 0.5, -0.9, 0.4, 1.5, 6, 1);   // braço esquerda
+        theta_z = -15; drawCube(0.1, 0.93, 0.93, 0.455, -0.5, -0.8, 0.4, 1.5, 3, 1);  // manga camiseta esq
+        theta_z = 15; drawCube(0.1, 0.93, 0.93, 0.455, 0.5, -0.8, 0.4, 1.5, 3, 1);  // manga camiseta dir
         theta_z = 0;
 
-        drawCube(0.85, rB, gB, bB, 0, -0.85, 0.05, 0.8, 0.7, 1.1);   // corpo preto
-        drawCube(1.0, 0.0, 0.0, 1.0, 0, -0.55, 0.05, 0.8, 0.1, 1.2); // coleira azul
-        drawCube(0.9, rB, gB, bB, 0, -0.8, 0.05, 0.9, 0.5, 1.2);     // barriga preto
+        drawCube(0.85, rB, gB, bB, 0, -0.6, 0.05, 0.8, 0.3, 1.1);   // pescoco
+        drawCube(0.85, 0.173, 0.149, 0.510, 0, -0.85, 0.05, 0.8, 0.7, 1.1);   // shorts
+        drawCube(1.0, 0.0, 0.0, 1.0, 0, -0.87, 0.05, 0.9, 0.3, 1.2); // roupinha grande
+        drawCube(1.0, 0.0, 0.0, 1.0, -0.2, -0.71, 0.05, 0.15, 0.3, 1.2); // roupinha parte esq
+        //drawCube(0.7, 0.051, 0.035, 0.447, -0.2, -0.65, 0.4, 0.13, 0.18, 0.8); // roupinha 'bolinha' esq
+        //drawCube(0.7, 0.051, 0.035, 0.447, 0.2, -0.65, 0.4, 0.13, 0.18, 0.8); // roupinha 'bolinha' dir
+        drawCube(1.0, 0.0, 0.0, 1.0, 0.2, -0.71, 0.05, 0.15, 0.3, 1.2); // roupinha parte dir
+        drawCube(0.9, 0.93, 0.93, 0.455, 0, -0.8, 0.05, 0.9, 0.5, 1.2);     // barriga amarela
         drawCube(0.4, rB, gB, bB, -0.22, -1.35, 0, 0.75, 0.6, 1);    // perna esquerda
         drawCube(0.4, rB, gB, bB, 0.22, -1.35, 0, 0.75, 0.6, 1);     // perna direita
 
