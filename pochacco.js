@@ -261,7 +261,7 @@ function main() {
     let angulo = 0;
 
     function rotaciona_camera() {
-        angulo += 0.05;
+        angulo += 0.02;
 
         const raio = 2.5;
         P0 = [raio * Math.sin(angulo), 0.0, raio * Math.cos(angulo)];
@@ -282,12 +282,23 @@ function main() {
         drawCube(0.1, 0.0, 0.0, 0.0, 0.3, -0.1, 0.5, 1, 2, 1); // olho direito (em relacao a minha visao)
         drawCube(0.1, 0.0, 0.0, 0.0, 0.0, -0.2, 0.55, 1.5, 1, 1); // fucinho
         theta_z = -10; drawCube(0.1, 0.0, 0.0, 0.0, -0.58, 0.15, 0.4, 1, 6, 1);  // orelha esquerda (em relacao a minha visao)
-        theta_z = 10; drawCube(0.1, 0.0, 0.0, 0.0, 0.58, 0.15, 0.4, 1, 6, 1); // orelha esquerda (em relacao a minha visao)
+        theta_z = 10; drawCube(0.1, 0.0, 0.0, 0.0, 0.58, 0.15, 0.4, 1, 6, 1); // orelha direita (em relacao a minha visao)
         theta_z = 0;
         drawCube(1.0, 1.0, 1.0, 1.0, 0, -0.85, 0.05, 0.8, 0.7, 1.1); // corpo branco
         drawCube(1.0, 1.0, 0.0, 0.0, 0, -0.8, 0.05, 0.9, 0.5, 1.2); // corpo vermelho
         drawCube(0.5, 1.0, 1.0, 1.0, -0.22, -1.35, 0, 0.75, 0.6, 1); // perna esquerda (em relacao a minha visao)
         drawCube(0.5, 1.0, 1.0, 1.0, 0.22, -1.35, 0, 0.75, 0.6, 1); // perna direita (em relacao a minha visao)
+        theta_z = -30; drawCube(0.2, 1.0, 1.0, 1.0, -0.55, -0.8, 0.2, 1, 2, 1);  // braco esquerdo branco (em relacao a minha visao)
+        theta_z = -30; drawCube(0.2, 1.0, 0.0, 0.0, -0.5, -0.7, 0.2, 1, 1, 2);  // braco esquerdo vermelho (em relacao a minha visao)
+
+        theta_z = 30; drawCube(0.2, 1.0, 1.0, 1.0, 0.55, -0.8, 0.2, 1, 2, 1);  // braco direito branco (em relacao a minha visao)
+        theta_z = 30; drawCube(0.2, 1.0, 0.0, 0.0, 0.5, -0.7, 0.2, 1, 1, 2);  // braco esquerdo vermelho (em relacao a minha visao)
+        
+        theta_z = 20; drawCube(0.1, 0.0, 0.0, 0.0, -0.2, 0.6, 0.4, 1, 1.5, 1);  // cabelo esquerdo (em relacao a minha visao)
+        theta_z = 0; drawCube(0.1, 0.0, 0.0, 0.0, 0.0, 0.6, 0.4, 1, 1.5, 1);  // cabelo do meio
+        theta_z = -20; drawCube(0.1, 0.0, 0.0, 0.0, 0.2, 0.6, 0.4, 1, 1.5, 1);  // cabelo direito (em relacao a minha visao)
+
+        theta_z = 0;
 
         //requestAnimationFrame(drawPochacco);
     }
