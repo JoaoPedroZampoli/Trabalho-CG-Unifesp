@@ -204,8 +204,10 @@ function main() {
     gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
     gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0,1.0,1.0]));
 
-    let xw_min = -1.0;
-    let xw_max = 1.0;
+    const aspecto = gl.canvas.width / gl.canvas.height;
+
+    let xw_min = -1.0 * aspecto;
+    let xw_max = 1.0 * aspecto;
     let yw_min = -1.0;
     let yw_max = 1.0;
     let z_near = -1.0;
@@ -270,10 +272,24 @@ function main() {
         gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
     }
 
+    // Variável global para controlar o tempo da animação
+    let time = 0;
+
     function drawHelloKitty() {
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        //rotaciona_camera();
+        rotaciona_camera();
+
+        // Animação 
+        time += 0.20; // Velocidade da animaçãov
+
+        // Oscilação entre -1 e 1 baseada no tempo
+        // Multiplicamos por 20 para ter uma amplitude de 20 graus
+        let walkCycle = Math.sin(time) * 20; 
+
+        // Ângulos para pernas e braços (fases opostas)
+        let leftLimbAngle = walkCycle;
+        let rightLimbAngle = -walkCycle;
 
         // Cor do HelloKitty
         const rB = 1.0, gB = 1.0, bB = 1.0; // branco
@@ -310,10 +326,10 @@ function main() {
         //drawCube(0.1, rB, gB, bB, 0.30, 0.75, 0.4, 1, 1.5, 1.5);    //preto
         drawCube(0.25, rB, gB, bB, 0.30, 0.35, 0.35, 1, 1, 1);      //preto maior
 
-        theta_z = -15; drawCube(0.08, rB, gB, bB, -0.5, -0.9, 0.4, 1.5, 6, 1);  // braço esquerda
-        theta_z =  15; drawCube(0.08, rB, gB, bB, 0.5, -0.9, 0.4, 1.5, 6, 1);   // braço esquerda
-        theta_z = -15; drawCube(0.1, 0.93, 0.93, 0.455, -0.5, -0.8, 0.4, 1.5, 3, 1);  // manga camiseta esq
-        theta_z = 15; drawCube(0.1, 0.93, 0.93, 0.455, 0.5, -0.8, 0.4, 1.5, 3, 1);  // manga camiseta dir
+        //theta_z = -15; drawCube(0.08, rB, gB, bB, -0.5, -0.9, 0.4, 1.5, 6, 1);  // braço esquerda
+        //theta_z =  15; drawCube(0.08, rB, gB, bB, 0.5, -0.9, 0.4, 1.5, 6, 1);   // braço esquerda
+        //theta_z = -15; drawCube(0.1, 0.93, 0.93, 0.455, -0.5, -0.8, 0.4, 1.5, 3, 1);  // manga camiseta esq
+        //theta_z = 15; drawCube(0.1, 0.93, 0.93, 0.455, 0.5, -0.8, 0.4, 1.5, 3, 1);  // manga camiseta dir
         theta_z = 0;
 
         drawCube(0.85, rB, gB, bB, 0, -0.6, 0.05, 0.8, 0.3, 1.1);   // pescoco
@@ -324,11 +340,34 @@ function main() {
         //drawCube(0.7, 0.051, 0.035, 0.447, 0.2, -0.65, 0.4, 0.13, 0.18, 0.8); // roupinha 'bolinha' dir
         drawCube(1.0, 0.0, 0.0, 1.0, 0.2, -0.71, 0.05, 0.15, 0.3, 1.2); // roupinha parte dir
         drawCube(0.9, 0.93, 0.93, 0.455, 0, -0.8, 0.05, 0.9, 0.5, 1.2);     // barriga amarela
-        drawCube(0.4, rB, gB, bB, -0.22, -1.35, 0, 0.75, 0.6, 1);    // perna esquerda
-        drawCube(0.4, rB, gB, bB, 0.22, -1.35, 0, 0.75, 0.6, 1);     // perna direita
+        //drawCube(0.4, rB, gB, bB, -0.22, -1.25, 0, 0.75, 0.9, 1);    // perna esquerda
+        //drawCube(0.4, rB, gB, bB, 0.22, -1.25, 0, 0.75, 0.9, 1);     // perna direita
 
-        requestAnimationFrame(drawHelloKitty);
-    }
+        // --- ANIMAÇÃO DOS MEMBROS ---
+
+    // Braço Esquerdo (move oposto à perna esquerda, igual à perna direita)
+    theta_x = rightLimbAngle; 
+    drawCube(0.08, rB, gB, bB, -0.5, -0.9, 0.2, 1.5, 6, 1.5); //braco esq
+    drawCube(0.1, 0.93, 0.93, 0.455, -0.5, -0.8, 0.2, 1.5, 3, 2); //manga camiseta esq
+    // Braço Direito
+    theta_x = leftLimbAngle;
+    drawCube(0.08, rB, gB, bB, 0.5, -0.9, 0.4, 1.5, 6, 1.5); //braco dir
+    drawCube(0.1, 0.93, 0.93, 0.455, 0.5, -0.8, 0.4, 1.5, 3, 2);  // manga camiseta dir
+    // Resetar rotação para evitar bugs
+    theta_x = 0; 
+
+    // Perna Esquerda
+    theta_x = leftLimbAngle;
+    drawCube(0.4, rB, gB, bB, -0.22, -1.25, 0, 0.75, 0.9, 1); 
+    
+    // Perna Direita
+    theta_x = rightLimbAngle;
+    drawCube(0.4, rB, gB, bB, 0.22, -1.25, 0, 0.75, 0.9, 1);
+
+    theta_x = 0; // Reset final
+
+    requestAnimationFrame(drawHelloKitty);
+}
 
     drawHelloKitty();
 }
