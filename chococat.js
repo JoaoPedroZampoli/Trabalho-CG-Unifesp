@@ -202,10 +202,12 @@ function main() {
     let viewingMatrix = m4.setViewingMatrix(P0,Pref,V);
 
     gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
-    gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0,1.0,1.0]));
+    gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0,1.0, 1.0]));
 
-    let xw_min = -1.0;
-    let xw_max = 1.0;
+    const aspecto = gl.canvas.width / gl.canvas.height;
+
+    let xw_min = -1.0 * aspecto;
+    let xw_max = 1.0 * aspecto;
     let yw_min = -1.0;
     let yw_max = 1.0;
     let z_near = -1.0;
@@ -305,21 +307,20 @@ function main() {
         drawCube(0.1, rB, gB, bB, 0.30, 0.75, 0.4, 1, 1.5, 1.5);    //preto
         drawCube(0.25, rB, gB, bB, 0.30, 0.55, 0.35, 1, 1, 1);      //preto maior
 
-        //orelha triangular
-        //theta_z = -20; drawCube(0.08, rB, gB, bB, -0.4, 0.55, 0.4, 1, 6, 1);  // orelha esquerda
-        //theta_z =  20; drawCube(0.08, rB, gB, bB, 0.4, 0.55, 0.4, 1, 6, 1);   // orelha esquerda
-        //theta_z =  30; drawCube(0.08, rB, gB, bB, -0.20, 0.55, 0.4, 1, 6, 1); // orelha direita
-        //theta_z = -30; drawCube(0.08, rB, gB, bB, 0.20, 0.55, 0.4, 1, 6, 1);  // orelha direita
-
-        theta_z = -15; drawCube(0.08, rB, gB, bB, -0.5, -0.9, 0.4, 1.5, 6, 1);  // braço esquerda
-        theta_z =  15; drawCube(0.08, rB, gB, bB, 0.5, -0.9, 0.4, 1.5, 6, 1);   // braço esquerda
+        theta_z = -15; drawCube(0.08, rB, gB, bB, -0.5, -0.9, 0.1, 1.5, 7, 2.0);  // braço esquerda
+        theta_z =  15; drawCube(0.08, rB, gB, bB, 0.5, -0.9, 0.1, 1.5, 7, 2.0);   // braço direita
         theta_z = 0;
+
+        theta_z = 0; drawCube(0.1, rB, gB, bB, 0.0, -0.6, -0.65, 1.5, 6, 1.0);  // rabo
+        theta_x = 120; drawCube(0.1, rB, gB, bB, 0.0, -0.95, -0.5, 1.5, 4, 1.0);  //RABO ligação
+        theta_x = 0;
 
         drawCube(0.85, rB, gB, bB, 0, -0.85, 0.05, 0.8, 0.7, 1.1);   // corpo preto
         drawCube(1.0, 0.0, 0.0, 1.0, 0, -0.55, 0.05, 0.8, 0.1, 1.2); // coleira azul
         drawCube(0.9, rB, gB, bB, 0, -0.8, 0.05, 0.9, 0.5, 1.2);     // barriga preto
-        drawCube(0.4, rB, gB, bB, -0.22, -1.35, 0, 0.75, 0.6, 1);    // perna esquerda
-        drawCube(0.4, rB, gB, bB, 0.22, -1.35, 0, 0.75, 0.6, 1);     // perna direita
+        drawCube(0.4, rB, gB, bB, -0.22, -1.30, 0, 0.75, 1.0, 1);    // perna esquerda
+        drawCube(0.4, rB, gB, bB, 0.22, -1.30, 0, 0.75, 1.0, 1);     // perna direita
+       
 
         requestAnimationFrame(drawChococat);
     }
