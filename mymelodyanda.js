@@ -272,46 +272,90 @@ function main() {
         gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
     }
 
-    function drawMelody() {
-        gl.clear(gl.COLOR_BUFFER_BIT);
+    // Variável global para controlar o tempo da animação
+let time = 0;
 
-        rotaciona_camera();
+function drawMelody() {
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Limpar buffer 
 
-        drawCube(1.0, 1.0, 1.0, 1.0, 0, 0, 0, 1, 1, 1); // cabeca
-        drawCube(1.0, 1.5, 1.2, 1.8, 0, 0.4, 0, 1.05, 0.3, 1.05); // cabeca chapeu
-        drawCube(1.0, 1.5, 1.2, 1.8, 0.4, 0.3, 0, 0.25, 0.35, 1.05); // cabeca chapeu
-        drawCube(1.0, 1.5, 1.2, 1.8, -0.4, 0.3, 0, 0.25, 0.35, 1.05); // cabeca chapeu
-        drawCube(1.0, 1.5, 1.2, 1.8, -0.51, 0.0, 0, 0.04, 1, 1.05); //Chapeu lado esquerdo
-        drawCube(1.0, 1.5, 1.2, 1.8, 0.51, 0.0, 0, 0.04, 1, 1.05); //Chapeu lado direito
-        theta_y = 90; drawCube(1.0, 1.5, 1.2, 1.9, 0.0, 0.0, -0.51, 0.04, 1, 1.05); //Chapeu lado direito
-        theta_y = 0;
-        theta_z = 65; drawCube(0.22, 0.83,	0.68	,0.21, -0.15, 0.27, 0.5, 1, 1.2, 1);   // lacinho esq
-        theta_z = 65; drawCube(0.22, 0.83,	0.68	,0.21, -0.42, 0.14, 0.5, 1, 1.2, 1);   // lacinho dir
-        theta_z = -65; drawCube(0.14, 0.75, 0.65, 0.05, -0.28, 0.21, 0.6, 1, 1.2, 1);   // lacinho quadrado meio
-        theta_z = -65; drawCube(0.07, 0.75, 0.65, 0.05, -0.409, 0.16, 0.6, 1, 1.2, 1);   // lacinho quadrado meio dir
-        theta_z = -65; drawCube(0.07, 0.75, 0.65, 0.05, -0.165, 0.27, 0.6, 1, 1.2, 1); 
-        theta_z = 0;
-        //drawCube(0.2, 1.0, 1.0, 1.0, 0, -0.35, 0.05, 5, 1.5, 5); // cabeca bigode
-        drawCube(0.1, 0.0, 0.0, 0.0, -0.3, -0.1, 0.5, 1, 2, 1); // olho esquerdo (em relacao a minha visao)
-        drawCube(0.1, 0.0, 0.0, 0.0, 0.3, -0.1, 0.5, 1.4, 0.5, 1); // olho direito (em relacao a minha visao)
-        drawCube(0.1, 1.0, 1.0, 0.0, 0.0, -0.2, 0.55, 0.5, 0.5, 0.5); // fucinho
-        drawCube(0.1, 0.0, 0.0, 0.0, 0.0, -0.35, 0.5, 2, 0.5, 0.5); // boca
-        drawCube(0.1, 0.0, 0.0, 0.0, 0.1, -0.32, 0.5, 0.6, 0.6, 0.5); //boca 2
-        theta_z = 0; drawCube(0.1, 1.5, 1.2, 1.8, -0.40, 0.55, 0.0, 1.9, 12.5, 2);  // orelha esquerda (em relacao a minha visao)
-        theta_x = 120; drawCube(0.1, 1.5, 1.2, 1.8, -0.40, 1.0, 0.2, 1.5, 6, 2);  // orelha esquerda 2 (em relacao a minha visao)
-        theta_x = 0;
-        theta_z = 0; drawCube(0.1, 1.5, 1.2, 1.8, 0.40, 0.55, 0.0, 1.9, 16, 2); // orelha esquerda (em relacao a minha visao)
-        theta_z = 0;
-        drawCube(1.0, 1.0, 1.0, 1.0, 0, -0.85, 0.05, 0.8, 0.7, 0.65); // corpo branco
-        drawCube(0.1, 1.5, 1.2, 1.8, 0.0, -0.52, 0, 13, 0.5, 10); // manto
-        drawCube(0.5, 1.0, 1.0, 1.0, -0.4, -0.75, 0, 0.70, 1, 0.7); // braço esquerda (em relacao a minha visao)
-        drawCube(0.5, 1.0, 1.0, 1.0, 0.4, -0.75, 0, 0.70, 1, 0.7); // braço direita (em relacao a minha visao)
-        //drawCube(1.0, 1.0, 0.0, 0.0, 0, -0.8, 0.05, 0.9, 0.5, 1.2); // corpo vermelho
-        drawCube(0.5, 1.0, 1.0, 1.0, -0.22, -1.35, 0, 0.70, 0.6, 1); // perna esquerda (em relacao a minha visao)
-        drawCube(0.5, 1.0, 1.0, 1.0, 0.22, -1.35, 0, 0.70, 0.6, 1); // perna direita (em relacao a minha visao)
+    rotaciona_camera();
+    
+    // Animação 
+    time += 0.30; // Velocidade da animação
+    
+    // Oscilação entre -1 e 1 baseada no tempo
+    // Multiplicamos por 20 para ter uma amplitude de 20 graus
+    let walkCycle = Math.sin(time) * 20; 
+    
+    // Ângulos para pernas e braços (fases opostas)
+    let leftLimbAngle = walkCycle;
+    let rightLimbAngle = -walkCycle;
+    // --------------------------
 
-        requestAnimationFrame(drawMelody);
-    }
+    // Desenho Estático (Cabeça e Corpo)
+    theta_x = 0; theta_y = 0; theta_z = 0; // Resetar rotações bases
+    
+    drawCube(1.0, 1.0, 1.0, 1.0, 0, 0, 0, 1, 1, 1); // cabeça
+    drawCube(1.0, 1.5, 1.2, 1.8, 0, 0.4, 0, 1.05, 0.3, 1.05); // chapéu topo
+    drawCube(1.0, 1.5, 1.2, 1.8, 0.4, 0.3, 0, 0.25, 0.35, 1.05); 
+    drawCube(1.0, 1.5, 1.2, 1.8, -0.4, 0.3, 0, 0.25, 0.35, 1.05); 
+    drawCube(1.0, 1.5, 1.2, 1.8, -0.51, 0.0, 0, 0.04, 1, 1.05); 
+    drawCube(1.0, 1.5, 1.2, 1.8, 0.51, 0.0, 0, 0.04, 1, 1.05); 
+    
+    theta_y = 90; drawCube(1.0, 1.5, 1.2, 1.9, 0.0, 0.0, -0.51, 0.04, 1, 1.05); // aba trás
+    theta_y = 0;
+
+    // Laços
+    theta_z = 65; drawCube(0.22, 0.83,  0.68    ,0.21, -0.15, 0.27, 0.5, 1, 1.2, 1); 
+    theta_z = 65; drawCube(0.22, 0.83,  0.68    ,0.21, -0.42, 0.14, 0.5, 1, 1.2, 1); 
+    theta_z = -65; drawCube(0.14, 0.75, 0.65, 0.05, -0.28, 0.21, 0.6, 1, 1.2, 1); 
+    theta_z = -65; drawCube(0.07, 0.75, 0.65, 0.05, -0.409, 0.16, 0.6, 1, 1.2, 1); 
+    theta_z = -65; drawCube(0.07, 0.75, 0.65, 0.05, -0.165, 0.27, 0.6, 1, 1.2, 1); 
+    theta_z = 0;
+
+    // Rosto
+    drawCube(0.1, 0.0, 0.0, 0.0, -0.3, -0.1, 0.5, 1, 2, 1); // olho esq
+    drawCube(0.1, 0.0, 0.0, 0.0, 0.3, -0.1, 0.5, 1.4, 0.5, 1); // olho dir
+    drawCube(0.1, 1.0, 1.0, 0.0, 0.0, -0.2, 0.55, 0.5, 0.5, 0.5); // fucinho
+    drawCube(0.1, 0.0, 0.0, 0.0, 0.0, -0.35, 0.5, 2, 0.5, 0.5); // boca
+    drawCube(0.1, 0.0, 0.0, 0.0, 0.1, -0.32, 0.5, 0.6, 0.6, 0.5); // boca 2
+
+    // Orelhas
+    theta_z = 0; drawCube(0.1, 1.5, 1.2, 1.8, -0.40, 0.55, 0.0, 1.9, 12.5, 2); 
+    theta_x = 120; drawCube(0.1, 1.5, 1.2, 1.8, -0.40, 1.0, 0.2, 1.5, 6, 2); 
+    theta_x = 0; 
+    theta_z = 0; drawCube(0.1, 1.5, 1.2, 1.8, 0.40, 0.55, 0.0, 1.9, 16, 2); 
+    theta_z = 0;
+
+    // Corpo
+    drawCube(1.0, 1.0, 1.0, 1.0, 0, -0.85, 0.05, 0.8, 0.7, 0.65); 
+    drawCube(0.1, 1.5, 1.2, 1.8, 0.0, -0.52, 0, 13, 0.5, 10); 
+
+    // --- ANIMAÇÃO DOS MEMBROS ---
+
+    // Braço Esquerdo (move oposto à perna esquerda, igual à perna direita)
+    theta_x = rightLimbAngle; 
+    drawCube(0.5, 1.0, 1.0, 1.0, -0.4, -0.75, 0, 0.70, 1, 0.7);
+    
+    // Braço Direito
+    theta_x = leftLimbAngle;
+    drawCube(0.5, 1.0, 1.0, 1.0, 0.4, -0.75, 0, 0.70, 1, 0.7);
+    
+    // Resetar rotação para evitar bugs
+    theta_x = 0; 
+
+    // Perna Esquerda
+    theta_x = leftLimbAngle;
+    drawCube(0.5, 1.0, 1.0, 1.0, -0.22, -1.35, 0, 0.70, 1, 0.7);
+    
+    // Perna Direita
+    theta_x = rightLimbAngle;
+    drawCube(0.5, 1.0, 1.0, 1.0, 0.22, -1.35, 0, 0.70, 1, 0.7);
+
+    theta_x = 0; // Reset final
+
+    requestAnimationFrame(drawMelody);
+}
 
     drawMelody();
 }
