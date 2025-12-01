@@ -220,7 +220,7 @@ function main() {
 
     let theta_x = 0; let theta_y = 0; let theta_z = 0;
 
-    function drawCube(tam, r, g, b, add_x, add_y, add_z, sx, sy, sz) {
+    function drawCube(tam, r, g, b, add_x, add_y, add_z, sx, sy, sz, deslocamentoY = 0) {
         vertices = setCubeVertices(tam);
 
         gl.enableVertexAttribArray(positionLocation);
@@ -236,6 +236,11 @@ function main() {
 
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.scale(modelViewMatrix, sx, sy, sz);
+
+        if (deslocamentoY !== 0) {
+            modelViewMatrix = m4.translate(modelViewMatrix, 0, deslocamentoY, 0);
+        }
+
         modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(theta_x));
         modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(theta_y));
         modelViewMatrix = m4.zRotate(modelViewMatrix, degToRad(theta_z));
@@ -290,7 +295,6 @@ function main() {
         // Ângulos para pernas e braços (fases opostas)
         let leftLimbAngle = walkCycle;
         let rightLimbAngle = -walkCycle;
-        let TailAngle = Math.sin(time) * 0;
         // --------------------------
 
         // Desenho Estático (Cabeça e Corpo)
@@ -354,8 +358,8 @@ function main() {
         theta_x = 0; // Reset final
 
         //rabo mexendo
-        theta_z = TailAngle; 
-        drawCube(0.1, rB, gB, bB, 0.0, -0.6, -0.65, 1.5, 6, 1.0);  // rabo
+        theta_z = leftLimbAngle;
+        drawCube(0.1, rB, gB, bB, 0.0, -1.1, -0.65, 1.5, 6, 1.0, 0.5); // rabo
         theta_z = 0;
 
         theta_x = 120; drawCube(0.1, rB, gB, bB, 0.0, -0.95, -0.5, 1.5, 4, 1.0);  //RABO ligação
