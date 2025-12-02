@@ -274,12 +274,26 @@ function main() {
 
     function drawChocolateCake(x_pos, z_pos) {
 
+        gl.clearColor(1.0, 0.71, 0.75, 1.0); // Rosa bebê -> aqui para mudar a cor do fundo na hora que gira
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
         //rotaciona_camera();
 
         // Cores (R, G, B)
-        const massaColor = [0.36, 0.20, 0.09]; // Marrom escuro (massa)
-        const recheioColor = [0.60, 0.40, 0.25]; // Marrom claro (recheio)
+        //bolo com massa e cobertura de chocolate
+        const massaColor = [0.36, 0.20, 0.09];     // Marrom escuro (massa)
+        const recheioColor = [0.60, 0.40, 0.25];   // Marrom claro (recheio)
         const coberturaColor = [0.25, 0.10, 0.05]; // Chocolate amargo (topo)
+
+        //bolo com massa de baunilha e recheio e cobertura de chocolate
+        //const massaColor = [0.94,0.90,0.55];       // baunilha? meio amarelinha (massa)
+        //const recheioColor = [1.0, 1.0, 0.85];     // amarelinho bem mais claro (recheio)
+        //const coberturaColor = [0.25, 0.10, 0.05]; // Chocolate amargo (topo)
+
+        //bolo com massa de baunilha e recheio e cobertura rosa
+        //const massaColor = [0.94,0.90,0.55];       // baunilha? meio amarelinha (massa)
+        //const recheioColor = [1.0, 0.7, 0.9];     // rosa bem mais claro (recheio)
+        //const coberturaColor = [1.0, 0.5, 0.8]; // Rosa (topo)
 
         // Largura e Profundidade do bolo
         const width = 2.5;
@@ -319,7 +333,7 @@ function main() {
         drawCube(0.05, 1.0, 0.5, 0.5, x_pos + 0.2, AtualY + 0.1, z_pos + 0.1, 1, 1, 1);
         drawCube(0.05, 0.5, 1.0, 0.5, x_pos + 0.6, AtualY + 0.1, z_pos - 0.1, 1, 1, 1);
 
-        //requestAnimationFrame(() => drawChocolateCake(x_pos, z_pos));
+        requestAnimationFrame(() => drawChocolateCake(x_pos, z_pos));
     }
 
     drawChocolateCake(0.0, 0.0);
