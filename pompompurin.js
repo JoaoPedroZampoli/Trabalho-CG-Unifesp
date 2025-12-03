@@ -218,6 +218,58 @@ function main() {
 
     let theta_x = 0; let theta_y = 0; let theta_z = 0;
 
+    // Posição do Pompompurin
+    let posX = 0;
+    let posY = 0;
+    let posZ = 0;
+    let rotacao = 0; // Rotação do personagem
+
+    // Animação de caminhada
+    let walkCycle = 0;
+    let isWalking = false;
+
+    // Controle de teclas pressionadas
+    const keys = {};
+
+    document.addEventListener('keydown', (e) => {
+        keys[e.key.toLowerCase()] = true;
+    });
+
+    document.addEventListener('keyup', (e) => {
+        keys[e.key.toLowerCase()] = false;
+    });
+
+    function handleInput() {
+        const velocidade = 0.03;
+        const velocidadeRotacao = 2;
+        isWalking = false;
+
+        // Movimento WASD
+        if (keys['w']) {
+            posX += Math.sin(degToRad(rotacao)) * velocidade;
+            posZ += Math.cos(degToRad(rotacao)) * velocidade;
+            isWalking = true;
+        }
+        if (keys['s']) {
+            posX -= Math.sin(degToRad(rotacao)) * velocidade;
+            posZ -= Math.cos(degToRad(rotacao)) * velocidade;
+            isWalking = true;
+        }
+        if (keys['a']) {
+            rotacao += velocidadeRotacao;
+        }
+        if (keys['d']) {
+            rotacao -= velocidadeRotacao;
+        }
+
+        // Animação de caminhada
+        if (isWalking) {
+            walkCycle += 0.2;
+        } else {
+            walkCycle = 0;
+        }
+    }
+
     function drawCube(tam, r, g, b, add_x, add_y, add_z, sx, sy, sz) {
         vertices = setCubeVertices(tam);
 
@@ -237,7 +289,11 @@ function main() {
         modelViewMatrix = m4.xRotate(modelViewMatrix,degToRad(theta_x));
         modelViewMatrix = m4.yRotate(modelViewMatrix,degToRad(theta_y));
         modelViewMatrix = m4.zRotate(modelViewMatrix,degToRad(theta_z));
-        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y + 0.5, add_z); // +0.5 para deixar desenho mais para cima
+        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y + 0.5, add_z);
+        
+        // Aplicar rotação e posição global do personagem
+        modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(rotacao));
+        modelViewMatrix = m4.translate(modelViewMatrix, posX, posY, posZ);
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
         
@@ -253,7 +309,7 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, 6*6);
     }
 
-    P0 = [0.0,0.0,2.0];
+    P0 = [0.0, 0.5, 3.0];
     Pref = [0.0,0.0,0.0];
     V = [0.0,1.0,0.0];
     viewingMatrix = m4.setViewingMatrix(P0,Pref,V);
@@ -271,9 +327,14 @@ function main() {
     }
 
     function drawPompompurin() {
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // rotaciona_camera();
+        handleInput();
+
+        // Animação de balanço ao andar
+        const legSwing = Math.sin(walkCycle) * 15;
+        const armSwing = Math.sin(walkCycle) * 10;
+        const bodyBounce = Math.abs(Math.sin(walkCycle)) * 0.02;
 
         // Cores
         const rY = 0.99, gY = 0.96, bY = 0.69; // Amarelo
@@ -281,32 +342,40 @@ function main() {
         const rD = 0.2, gD = 0.1, bD = 0.0; // Escuro (Rosto dele)
 
         //tam, r, g, b, add_x, add_y, add_z, sx, sy, sz
-        // Cabeca
-        drawCube(1.0, rY, gY, bY, 0, 0, 0, 1.2, 1.0, 1.0); 
+        // Cabeca (com bounce)
+        drawCube(1.0, rY, gY, bY, 0, bodyBounce, 0, 1.2, 1.0, 1.0); 
         // Boina
-        drawCube(0.6, rB, gB, bB, 0, 0.55, 0, 1.2, 0.4, 1.2);
-        drawCube(0.2, rB, gB, bB, 0, 0.7, 0, 1.0, 1.5, 1.0); // Topo da boina
+        drawCube(0.6, rB, gB, bB, 0, 0.55 + bodyBounce, 0, 1.2, 0.4, 1.2);
+        drawCube(0.2, rB, gB, bB, 0, 0.7 + bodyBounce, 0, 1.0, 1.5, 1.0);
         // Orelhas
         theta_z = -20;
-        drawCube(0.4, rY, gY, bY, -0.7, 0.2, 0, 1.0, 2.5, 0.8); // Esquerda
+        drawCube(0.4, rY, gY, bY, -0.7, 0.2 + bodyBounce, 0, 1.0, 2.5, 0.8);
         theta_z = 20;
-        drawCube(0.4, rY, gY, bY, 0.7, 0.2, 0, 1.0, 2.5, 0.8); // Direita
+        drawCube(0.4, rY, gY, bY, 0.7, 0.2 + bodyBounce, 0, 1.0, 2.5, 0.8);
         theta_z = 0;
         // Olhos
-        drawCube(0.08, rD, gD, bD, -0.25, -0.05, 0.51, 1.0, 1.0, 1.0);
-        drawCube(0.08, rD, gD, bD, 0.25, -0.05, 0.51, 1.0, 1.0, 1.0);
+        drawCube(0.08, rD, gD, bD, -0.25, -0.05 + bodyBounce, 0.51, 1.0, 1.0, 1.0);
+        drawCube(0.08, rD, gD, bD, 0.25, -0.05 + bodyBounce, 0.51, 1.0, 1.0, 1.0);
         // Nariz/Boca
-        drawCube(0.08, rD, gD, bD, 0, -0.15, 0.51, 1.5, 1.0, 1.0);
+        drawCube(0.08, rD, gD, bD, 0, -0.15 + bodyBounce, 0.51, 1.5, 1.0, 1.0);
         // Corpo
-        drawCube(1.0, rY, gY, bY, 0, -0.9, 0, 1.1, 0.9, 0.7);
-        // Bracos
-        drawCube(0.3, rY, gY, bY, -0.6, -0.8, 0.2, 1.0, 1.5, 1.0);
-        drawCube(0.3, rY, gY, bY, 0.6, -0.8, 0.2, 1.0, 1.5, 1.0);
-        // Pernas
+        drawCube(1.0, rY, gY, bY, 0, -0.9 + bodyBounce, 0, 1.1, 0.9, 0.7);
+        
+        // Bracos (com animação de balanço)
+        theta_x = armSwing;
+        drawCube(0.3, rY, gY, bY, -0.6, -0.8 + bodyBounce, 0.2, 1.0, 1.5, 1.0);
+        theta_x = -armSwing;
+        drawCube(0.3, rY, gY, bY, 0.6, -0.8 + bodyBounce, 0.2, 1.0, 1.5, 1.0);
+        theta_x = 0;
+        
+        // Pernas (com animação de caminhada)
+        theta_x = legSwing;
         drawCube(0.35, rY, gY, bY, -0.3, -1.4, 0.1, 1.0, 0.8, 1.2);
+        theta_x = -legSwing;
         drawCube(0.35, rY, gY, bY, 0.3, -1.4, 0.1, 1.0, 0.8, 1.2);
+        theta_x = 0;
 
-        // requestAnimationFrame(drawPompompurin);
+        requestAnimationFrame(drawPompompurin);
     }
 
     drawPompompurin();
