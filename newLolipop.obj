@@ -1,59 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello Kitty</title>
-    <style>
-        body {
-            margin: 20px;
-            padding: 0;
-            background-color: white;
-            font-family: Arial, sans-serif;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        table {
-            border-collapse: collapse;
-            margin: 0 auto;
-            border: 2px solid #ddd;
-        }
-        td {
-            border: 1px solid #ccc;
-            padding: 15px;
-            text-align: center;
-            vertical-align: middle;
-            background-color: #f9f9f9;
-        }
-        h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #555;
-            font-size: 14px;
-        }
-        canvas {
-            border: 1px solid #999;
-            background-color: black;
-        }
-    </style>
-</head>
-<body>
-    <h1>Hello Kitty</h1>
-    
-    <table>
-        <tr>
-            <td>
-                <canvas id="glCanvas" width="1024" height="600"></canvas>
-            </td>
-        </tr>
-    </table>
-
-    <script src="m4.js"></script>
-    <script src="pirulito.js"></script>
-    <script id="lolipop" type="text/plain">
+# Blender 5.0.0
+# www.blender.org
+mtllib newLolipop.mtl
+o Cylinder
 v 3.654851 -0.117482 -0.284157
 v 3.654851 -0.026663 -0.990675
 v 3.654851 -0.115256 -0.448929
@@ -26529,7 +26477,3 @@ f 6090/8139/6051 6088/8140/6051 6150/8141/6051 6148/8142/6051 6146/8143/6051 614
 f 6147/8138/6052 6148/8137/6052 6150/8171/6052 6149/8172/6052
 f 6149/8172/6053 6150/8171/6053 6088/8173/6053 6087/8174/6053
 f 6087/8175/6054 6089/8176/6054 6091/8177/6054 6093/8178/6054 6095/8179/6054 6097/8180/6054 6099/8181/6054 6101/8182/6054 6103/8183/6054 6105/8184/6054 6107/8185/6054 6109/8186/6054 6111/8187/6054 6113/8188/6054 6115/8189/6054 6117/8190/6054 6119/8191/6054 6121/8192/6054 6123/8193/6054 6125/8194/6054 6127/8195/6054 6129/8196/6054 6131/8197/6054 6133/8198/6054 6135/8199/6054 6137/8200/6054 6139/8201/6054 6141/8202/6054 6143/8203/6054 6145/8204/6054 6147/8205/6054 6149/8206/6054
-
-    </script>
-</body>
-</html>

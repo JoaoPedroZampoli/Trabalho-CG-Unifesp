@@ -159,6 +159,29 @@ function setCubeNormals() {
 }
 
 function main() {
+let charX = 0;
+let charZ = 0;
+let charAngle = 0; // Rotação do corpo (Y)
+const speed = 0.1; // Velocidade de movimento
+const turnSpeed = 2.0; // Velocidade de giro
+
+// Controle de teclas pressionadas
+const keys = {
+    w: false,
+    s: false,
+    a: false,
+    d: false
+};
+
+// Event Listeners para o teclado
+window.addEventListener('keydown', (e) => {
+    if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = true;
+});
+
+window.addEventListener('keyup', (e) => {
+    if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = false;
+});
+
     const canvas = document.getElementById('glCanvas');
     const gl = canvas.getContext('webgl');
 
@@ -220,7 +243,7 @@ function main() {
 
     let theta_x = 0; let theta_y = 0; let theta_z = 0;
 
-    function drawCube(tam, r, g, b, add_x, add_y, add_z, sx, sy, sz) {
+function drawCube(tam, r, g, b, add_x, add_y, add_z, sx, sy, sz) {
         vertices = setCubeVertices(tam);
 
         gl.enableVertexAttribArray(positionLocation);
@@ -235,11 +258,19 @@ function main() {
         gl.enableVertexAttribArray(normalLocation);
         
         modelViewMatrix = m4.identity();
+        
+        // --- Transformações Locais (Escala, Rotação local, Posição da parte do corpo) ---
         modelViewMatrix = m4.scale(modelViewMatrix, sx, sy, sz);
-        modelViewMatrix = m4.xRotate(modelViewMatrix,degToRad(theta_x));
-        modelViewMatrix = m4.yRotate(modelViewMatrix,degToRad(theta_y));
-        modelViewMatrix = m4.zRotate(modelViewMatrix,degToRad(theta_z));
-        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y + 0.5, add_z); // +0.5 para deixar desenho mais para cima
+        modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(theta_x));
+        modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(theta_y));
+        modelViewMatrix = m4.zRotate(modelViewMatrix, degToRad(theta_z));
+        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y + 0.5, add_z); 
+
+        // --- NOVA PARTE: Transformação Global (Mundo) ---
+        // Aplica a rotação do personagem e depois move para a posição X/Z no mundo
+        modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(charAngle));
+        modelViewMatrix = m4.translate(modelViewMatrix, charX, 0, charZ);
+        // ------------------------------------------------
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
         
@@ -254,7 +285,6 @@ function main() {
 
         gl.drawArrays(gl.TRIANGLES, 0, 6*6);
     }
-
     P0 = [0.0,0.0,2.0];
     Pref = [0.0,0.0,0.0];
     V = [0.0,1.0,0.0];
@@ -275,87 +305,120 @@ function main() {
     // Variável global para controlar o tempo da animação
 let time = 0;
 
-function drawMelody() {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Limpar buffer 
+    function drawMelody() {
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Limpar buffer 
 
-    rotaciona_camera();
-    
-    // Animação 
-    time += 0.30; // Velocidade da animação
-    
-    // Oscilação entre -1 e 1 baseada no tempo
-    // Multiplicamos por 20 para ter uma amplitude de 20 graus
-    let walkCycle = Math.sin(time) * 20; 
-    
-    // Ângulos para pernas e braços (fases opostas)
-    let leftLimbAngle = walkCycle;
-    let rightLimbAngle = -walkCycle;
-    // --------------------------
+        // --- LÓGICA WASD ---
+        let isWalking = false;
+        
+        // Rotação (A/D)
+        if (keys['a']) charAngle += turnSpeed;
+        if (keys['d']) charAngle -= turnSpeed;
 
-    // Desenho Estático (Cabeça e Corpo)
-    theta_x = 0; theta_y = 0; theta_z = 0; // Resetar rotações bases
-    
-    drawCube(1.0, 1.0, 1.0, 1.0, 0, 0, 0, 1, 1, 1); // cabeça
-    drawCube(1.0, 1.5, 1.2, 1.8, 0, 0.4, 0, 1.05, 0.3, 1.05); // chapéu topo
-    drawCube(1.0, 1.5, 1.2, 1.8, 0.4, 0.3, 0, 0.25, 0.35, 1.05); 
-    drawCube(1.0, 1.5, 1.2, 1.8, -0.4, 0.3, 0, 0.25, 0.35, 1.05); 
-    drawCube(1.0, 1.5, 1.2, 1.8, -0.51, 0.0, 0, 0.04, 1, 1.05); 
-    drawCube(1.0, 1.5, 1.2, 1.8, 0.51, 0.0, 0, 0.04, 1, 1.05); 
-    
-    theta_y = 90; drawCube(1.0, 1.5, 1.2, 1.9, 0.0, 0.0, -0.51, 0.04, 1, 1.05); // aba trás
-    theta_y = 0;
+        // Movimento (W/S) - move na direção que o personagem está olhando
+        if (keys['w']) {
+            charX -= Math.sin(degToRad(charAngle)) * speed;
+            charZ += Math.cos(degToRad(charAngle)) * speed;
+            isWalking = true;
+        }
+        if (keys['s']) {
+            charX += Math.sin(degToRad(charAngle)) * speed;
+            charZ -= Math.cos(degToRad(charAngle)) * speed;
+            isWalking = true;
+        }
+        // -------------------
 
-    // Laços
-    theta_z = 65; drawCube(0.22, 0.83,  0.68    ,0.21, -0.15, 0.27, 0.5, 1, 1.2, 1); 
-    theta_z = 65; drawCube(0.22, 0.83,  0.68    ,0.21, -0.42, 0.14, 0.5, 1, 1.2, 1); 
-    theta_z = -65; drawCube(0.14, 0.75, 0.65, 0.05, -0.28, 0.21, 0.6, 1, 1.2, 1); 
-    theta_z = -65; drawCube(0.07, 0.75, 0.65, 0.05, -0.409, 0.16, 0.6, 1, 1.2, 1); 
-    theta_z = -65; drawCube(0.07, 0.75, 0.65, 0.05, -0.165, 0.27, 0.6, 1, 1.2, 1); 
-    theta_z = 0;
+        // Atualizar Câmera para seguir o personagem (Third Person)
+        // Posiciona a câmera atrás e acima do personagem
+        // Se preferir câmera fixa, apenas remova as linhas abaixo que alteram P0 e Pref
+        let cameraDist = 5.0;
+        let cameraHeight = 3.0;
+        
+        // Câmera fixa (simples para testar WASD)
+        P0 = [charX, cameraHeight, charZ + cameraDist]; 
+        Pref = [charX, 0, charZ]; // Olha para o personagem
+        
+        viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
+        gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
+        gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0)); // Atualiza luz especular
+        
+        // Animação 
+        if (isWalking) {
+            time += 0.30; 
+        } else {
+            // Se parar de andar, reseta a pose lentamente ou para no lugar
+            // Para simplificar, vamos zerar o ciclo se parado para ficar em pé
+             if (Math.abs(Math.sin(time)) > 0.1) time += 0.30; else time = 0;
+        }
+        
+        let walkCycle = Math.sin(time) * 20; 
+        
+        let leftLimbAngle = walkCycle;
+        let rightLimbAngle = -walkCycle;
+        
+        // Desenho Estático (Cabeça e Corpo)
+        theta_x = 0; theta_y = 0; theta_z = 0; 
+        
+        drawCube(1.0, 1.0, 1.0, 1.0, 0, 0, 0, 1, 1, 1); // cabeça
+        drawCube(1.0, 1.5, 1.2, 1.8, 0, 0.4, 0, 1.05, 0.3, 1.05); // chapéu topo
+        drawCube(1.0, 1.5, 1.2, 1.8, 0.4, 0.3, 0, 0.25, 0.35, 1.05); 
+        drawCube(1.0, 1.5, 1.2, 1.8, -0.4, 0.3, 0, 0.25, 0.35, 1.05); 
+        drawCube(1.0, 1.5, 1.2, 1.8, -0.51, 0.0, 0, 0.04, 1, 1.05); 
+        drawCube(1.0, 1.5, 1.2, 1.8, 0.51, 0.0, 0, 0.04, 1, 1.05); 
+        
+        theta_y = 90; drawCube(1.0, 1.5, 1.2, 1.9, 0.0, 0.0, -0.51, 0.04, 1, 1.05); // aba trás
+        theta_y = 0;
 
-    // Rosto
-    drawCube(0.1, 0.0, 0.0, 0.0, -0.3, -0.1, 0.5, 1, 2, 1); // olho esq
-    drawCube(0.1, 0.0, 0.0, 0.0, 0.3, -0.1, 0.5, 1.4, 0.5, 1); // olho dir
-    drawCube(0.1, 1.0, 1.0, 0.0, 0.0, -0.2, 0.55, 0.5, 0.5, 0.5); // fucinho
-    drawCube(0.1, 0.0, 0.0, 0.0, 0.0, -0.35, 0.5, 2, 0.5, 0.5); // boca
-    drawCube(0.1, 0.0, 0.0, 0.0, 0.1, -0.32, 0.5, 0.6, 0.6, 0.5); // boca 2
+        // Laços
+        theta_z = 65; drawCube(0.22, 0.83,  0.68    ,0.21, -0.15, 0.27, 0.5, 1, 1.2, 1); 
+        theta_z = 65; drawCube(0.22, 0.83,  0.68    ,0.21, -0.42, 0.14, 0.5, 1, 1.2, 1); 
+        theta_z = -65; drawCube(0.14, 0.75, 0.65, 0.05, -0.28, 0.21, 0.6, 1, 1.2, 1); 
+        theta_z = -65; drawCube(0.07, 0.75, 0.65, 0.05, -0.409, 0.16, 0.6, 1, 1.2, 1); 
+        theta_z = -65; drawCube(0.07, 0.75, 0.65, 0.05, -0.165, 0.27, 0.6, 1, 1.2, 1); 
+        theta_z = 0;
 
-    // Orelhas
-    theta_z = 0; drawCube(0.1, 1.5, 1.2, 1.8, -0.40, 0.55, 0.0, 1.9, 12.5, 2); 
-    theta_x = 120; drawCube(0.1, 1.5, 1.2, 1.8, -0.40, 1.0, 0.2, 1.5, 6, 2); 
-    theta_x = 0; 
-    theta_z = 0; drawCube(0.1, 1.5, 1.2, 1.8, 0.40, 0.55, 0.0, 1.9, 16, 2); 
-    theta_z = 0;
+        // Rosto
+        drawCube(0.1, 0.0, 0.0, 0.0, -0.3, -0.1, 0.5, 1, 2, 1); // olho esq
+        drawCube(0.1, 0.0, 0.0, 0.0, 0.3, -0.1, 0.5, 1.4, 0.5, 1); // olho dir
+        drawCube(0.1, 1.0, 1.0, 0.0, 0.0, -0.2, 0.55, 0.5, 0.5, 0.5); // fucinho
+        drawCube(0.1, 0.0, 0.0, 0.0, 0.0, -0.35, 0.5, 2, 0.5, 0.5); // boca
+        drawCube(0.1, 0.0, 0.0, 0.0, 0.1, -0.32, 0.5, 0.6, 0.6, 0.5); // boca 2
 
-    // Corpo
-    drawCube(1.0, 1.0, 1.0, 1.0, 0, -0.85, 0.05, 0.8, 0.7, 0.65); 
-    drawCube(0.1, 1.5, 1.2, 1.8, 0.0, -0.52, 0, 13, 0.5, 10); 
+        // Orelhas
+        theta_z = 0; drawCube(0.1, 1.5, 1.2, 1.8, -0.40, 0.55, 0.0, 1.9, 12.5, 2); 
+        theta_x = 120; drawCube(0.1, 1.5, 1.2, 1.8, -0.40, 1.0, 0.2, 1.5, 6, 2); 
+        theta_x = 0; 
+        theta_z = 0; drawCube(0.1, 1.5, 1.2, 1.8, 0.40, 0.55, 0.0, 1.9, 16, 2); 
+        theta_z = 0;
 
-    // --- ANIMAÇÃO DOS MEMBROS ---
+        // Corpo
+        drawCube(1.0, 1.0, 1.0, 1.0, 0, -0.85, 0.05, 0.8, 0.7, 0.65); 
+        drawCube(0.1, 1.5, 1.2, 1.8, 0.0, -0.52, 0, 13, 0.5, 10); 
 
-    // Braço Esquerdo (move oposto à perna esquerda, igual à perna direita)
-    theta_x = rightLimbAngle; 
-    drawCube(0.5, 1.0, 1.0, 1.0, -0.4, -0.75, 0, 0.70, 1, 0.7);
-    
-    // Braço Direito
-    theta_x = leftLimbAngle;
-    drawCube(0.5, 1.0, 1.0, 1.0, 0.4, -0.75, 0, 0.70, 1, 0.7);
-    
-    // Resetar rotação para evitar bugs
-    theta_x = 0; 
+        // --- ANIMAÇÃO DOS MEMBROS ---
 
-    // Perna Esquerda
-    theta_x = leftLimbAngle;
-    drawCube(0.5, 1.0, 1.0, 1.0, -0.22, -1.35, 0, 0.70, 1, 0.7);
-    
-    // Perna Direita
-    theta_x = rightLimbAngle;
-    drawCube(0.5, 1.0, 1.0, 1.0, 0.22, -1.35, 0, 0.70, 1, 0.7);
+        // Braço Esquerdo
+        theta_x = rightLimbAngle; 
+        drawCube(0.5, 1.0, 1.0, 1.0, -0.4, -0.75, 0, 0.70, 1, 0.7);
+        
+        // Braço Direito
+        theta_x = leftLimbAngle;
+        drawCube(0.5, 1.0, 1.0, 1.0, 0.4, -0.75, 0, 0.70, 1, 0.7);
+        
+        theta_x = 0; 
 
-    theta_x = 0; // Reset final
+        // Perna Esquerda
+        theta_x = leftLimbAngle;
+        drawCube(0.5, 1.0, 1.0, 1.0, -0.22, -1.35, 0, 0.70, 1, 0.7);
+        
+        // Perna Direita
+        theta_x = rightLimbAngle;
+        drawCube(0.5, 1.0, 1.0, 1.0, 0.22, -1.35, 0, 0.70, 1, 0.7);
 
-    requestAnimationFrame(drawMelody);
-}
+        theta_x = 0; 
+
+        requestAnimationFrame(drawMelody);
+    }
 
     drawMelody();
 }
