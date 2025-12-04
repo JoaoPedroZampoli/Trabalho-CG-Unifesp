@@ -363,9 +363,9 @@ function main() {
         
         // Bracos (com animação de balanço)
         theta_x = armSwing;
-        drawCube(0.3, rY, gY, bY, -0.6, -0.8 + bodyBounce, 0.2, 1.0, 1.5, 1.0);
+        drawCube(0.3, rY, gY, bY, -0.7, -0.8 + bodyBounce, 0.2, 1.0, 1.5, 1.0);
         theta_x = -armSwing;
-        drawCube(0.3, rY, gY, bY, 0.6, -0.8 + bodyBounce, 0.2, 1.0, 1.5, 1.0);
+        drawCube(0.3, rY, gY, bY, 0.7, -0.8 + bodyBounce, 0.2, 1.0, 1.5, 1.0);
         theta_x = 0;
         
         // Pernas (com animação de caminhada)
