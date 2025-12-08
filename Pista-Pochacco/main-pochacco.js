@@ -903,6 +903,13 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, conicVertices.length / 3);
     }
 
+    function drawChao() {
+        //tam, r, g, b, add_x, add_y, add_z, sx, sy, sz
+        drawCube(1, 204/255, 169/255, 221/255, 0, -1.8, 10, 2, 1, 21);
+        drawCube(1, 1, 141/255, 161/255, -2, -1.8, 10, 2, 1, 21);
+        drawCube(1, 1, 141/255, 161/255, 2, -1.8, 10, 2, 1, 21);
+    }
+
     function drawScene() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         drawPochacco();
@@ -910,6 +917,7 @@ function main() {
         drawBrigadeiroMorango(-2, -4);
         drawSorveteMelao();
         drawBombomChocolate();
+        drawChao();
 
         requestAnimationFrame(drawScene);
     }
