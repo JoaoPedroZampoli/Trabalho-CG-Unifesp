@@ -856,12 +856,60 @@ function main() {
         gl.drawElements(gl.TRIANGLES, sphereIndices.length, gl.UNSIGNED_SHORT, 0);
     }
 
+    function drawBombomChocolate(){
+        gl.useProgram(program);
+
+        const positionLocation = gl.getAttribLocation(program, 'a_position');
+        const normalLocation = gl.getAttribLocation(program, 'a_normal');
+        
+        const colorUniformLocation = gl.getUniformLocation(program, 'u_color');
+
+        const modelViewMatrixUniformLocation = gl.getUniformLocation(program,'u_modelViewMatrix');
+        const viewingMatrixUniformLocation = gl.getUniformLocation(program,'u_viewingMatrix');
+        const projectionMatrixUniformLocation = gl.getUniformLocation(program,'u_projectionMatrix');
+        const inverseTransposeModelViewMatrixUniformLocation = gl.getUniformLocation(program, `u_inverseTransposeModelViewMatrix`);
+
+        const lightPositionUniformLocation = gl.getUniformLocation(program,'u_lightPosition');
+        const viewPositionUniformLocation = gl.getUniformLocation(program,'u_viewPosition');
+
+        const conicVertices = setSuperConicSphereVertices(0.5, 20, 20, 1.5, 2.5);
+        const conicNormals = setSuperConicSphereNormals_flat(0.5, 20, 20, 1.5, 2.5);
+
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, conicVertices, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(normalLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, NormalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, conicNormals, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+        
+        modelViewMatrix = m4.identity();
+        modelViewMatrix = m4.xRotate(modelViewMatrix,degToRad(90));
+        modelViewMatrix = m4.translate(modelViewMatrix, 0, -0.8, -10);
+
+        inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
+
+        gl.uniformMatrix4fv(modelViewMatrixUniformLocation,false,modelViewMatrix);
+        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation,false,inverseTransposeModelViewMatrix);
+        gl.uniformMatrix4fv(viewingMatrixUniformLocation,false,viewingMatrix);
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,projectionMatrix);
+
+        gl.uniform3fv(colorUniformLocation, new Float32Array([137/255,81/255,41/255]));
+        gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
+        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([0.0,-0.5,-8]));
+
+        gl.drawArrays(gl.TRIANGLES, 0, conicVertices.length / 3);
+    }
+
     function drawScene() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         drawPochacco();
         drawBrigadeiro(2, -4);
         drawBrigadeiroMorango(-2, -4);
         drawSorveteMelao();
+        drawBombomChocolate();
 
         requestAnimationFrame(drawScene);
     }
