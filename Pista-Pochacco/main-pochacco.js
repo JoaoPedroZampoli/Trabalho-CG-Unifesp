@@ -607,11 +607,93 @@ function main() {
         theta_z = 0;
     }
 
-    
+    // Textura para brigadeiro
+    const textureBrig = gl.createTexture();
+    const imageBrig = new Image();
+    imageBrig.src = "brigadeiro.jpg";
+    imageBrig.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, textureBrig);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageBrig);
+
+        // Allow non-power-of-two textures correctly (NO MIPMAPS)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textureBrig);
+        const texLocation = gl.getUniformLocation(programText, "u_texture");
+
+        gl.uniform1i(texLocation, 0); // use TEXTURE0
+
+        drawScene();
+    };
+
+    function drawBrigadeiro(posicaoX, posicaoZ){
+        gl.useProgram(programText);
+
+        const positionLocation = gl.getAttribLocation(programText, 'a_position');
+        const normalLocation = gl.getAttribLocation(programText, 'a_normal');
+        const texcoordLocation = gl.getAttribLocation(programText, "a_texcoord");
+        
+        modelViewMatrix = m4.identity();
+        modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.7, posicaoZ);
+
+        inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
+
+        const modelViewMatrixUniformLocation = gl.getUniformLocation(programText,'u_modelViewMatrix');
+        const viewingMatrixUniformLocation = gl.getUniformLocation(programText,'u_viewingMatrix');
+        const projectionMatrixUniformLocation = gl.getUniformLocation(programText,'u_projectionMatrix');
+        const inverseTransposeModelViewMatrixUniformLocation = gl.getUniformLocation(programText, `u_inverseTransposeModelViewMatrix`);
+
+        const lightPositionUniformLocation = gl.getUniformLocation(programText,'u_lightPosition');
+        const viewPositionUniformLocation = gl.getUniformLocation(programText,'u_viewPosition');        
+
+        gl.uniformMatrix4fv(modelViewMatrixUniformLocation,false,modelViewMatrix);
+        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation,false,inverseTransposeModelViewMatrix);
+        gl.uniformMatrix4fv(viewingMatrixUniformLocation,false,viewingMatrix);
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,projectionMatrix);
+
+        let sphereData = null; let sphereVertices = []; let sphereNormals = []; let sphereTexcoords = []; let sphereIndices = [];
+        let n = 30; let radius = 0.6;
+        sphereData = createSphere(n, n, radius);
+        sphereVertices = new Float32Array(sphereData.positions);
+        sphereNormals = new Float32Array(sphereData.normals);
+        sphereIndices = new Uint16Array(sphereData.indices);
+        sphereTexcoords = new Float32Array(sphereData.texcoords);
+
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexBufferSphere);
+        gl.bufferData(gl.ARRAY_BUFFER, sphereVertices, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(normalLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, NormalBufferSphere);
+        gl.bufferData(gl.ARRAY_BUFFER, sphereNormals, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(texcoordLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, sphereTexcoords, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, IndexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, sphereIndices, gl.STATIC_DRAW);
+
+        gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
+        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0,1.0,1.0]));
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textureBrig);
+        gl.uniform1i(gl.getUniformLocation(programText, "u_texture"), 0);
+        
+        gl.drawElements(gl.TRIANGLES, sphereIndices.length, gl.UNSIGNED_SHORT, 0);
+    }
 
     function drawScene() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         drawPochacco();
+        drawBrigadeiro(2, -4);
 
         requestAnimationFrame(drawScene);
     }
