@@ -231,9 +231,9 @@ var m4 = {
   },
 
   unitVector: function(v){ 
-    let vModulus = vectorModulus(v);
+    let vModulus = m4.vectorModulus(v);
     return v.map(function(x) { return x/vModulus; });
-  },
+},
 
   vectorModulus: function(v){
     return Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2)+Math.pow(v[2],2));
