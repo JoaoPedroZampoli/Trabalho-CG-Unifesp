@@ -917,6 +917,11 @@ function main() {
         drawBrigadeiroMorango(-2, -4);
         drawSorveteMelao();
         drawBombomChocolate();
+        drawBrigadeiro(2, -7);
+        drawBrigadeiroMorango(0, -8);
+        drawBrigadeiro(2, -11);
+        drawBrigadeiroMorango(-2, -13);
+        drawBrigadeiro(0, -15);
         drawChao();
 
         requestAnimationFrame(drawScene);
