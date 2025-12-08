@@ -1,5 +1,3 @@
-import * as m4 from '../math/m4.js';
-
 const vertexShaderSource = `
     attribute vec3 a_position;
     attribute vec3 a_normal;
