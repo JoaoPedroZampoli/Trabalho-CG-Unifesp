@@ -1,4 +1,3 @@
-
 const vertexShaderSource = `
     attribute vec3 a_position;
     attribute vec3 a_normal;
@@ -328,6 +327,7 @@ function drawMelody() {
     theta_z = 0; drawCube(0.1, 1.5, 1.2, 1.8, 0.40, 0.55, 0.0, 1.9, 16, 2); 
     theta_z = 0;
 
+    theta_y = 0;
     // Corpo
     drawCube(1.0, 1.0, 1.0, 1.0, 0, -0.85, 0.05, 0.8, 0.7, 0.65); 
     drawCube(0.1, 1.5, 1.2, 1.8, 0.0, -0.52, 0, 13, 0.5, 10); 
@@ -335,25 +335,25 @@ function drawMelody() {
     // --- ANIMAÇÃO DOS MEMBROS ---
 
     // Braço Esquerdo (move oposto à perna esquerda, igual à perna direita)
-    theta_x = rightLimbAngle; 
-    drawCube(0.5, 1.0, 1.0, 1.0, -0.4, -0.75, 0, 0.70, 1, 0.7);
+    theta_z = -200; 
+    drawCube(0.5, 1.0, 1.0, 1.0, -0.4, -0.70, 0, 1.35, 0.5, 0.7);
     
     // Braço Direito
-    theta_x = leftLimbAngle;
-    drawCube(0.5, 1.0, 1.0, 1.0, 0.4, -0.75, 0, 0.70, 1, 0.7);
+    theta_z = 200;
+    drawCube(0.5, 1.0, 1.0, 1.0, 0.4, -0.70, 0, 1.35, 0.5, 0.7);
     
     // Resetar rotação para evitar bugs
-    theta_x = 0; 
+    theta_z = 0; 
 
     // Perna Esquerda
-    theta_x = leftLimbAngle;
-    drawCube(0.5, 1.0, 1.0, 1.0, -0.22, -1.35, 0, 0.70, 1, 0.7);
+    //theta_x = leftLimbAngle;
+    drawCube(0.5, 1.0, 1.0, 1.0, -0.22, -1.35, 0, 0.70, 0.6, 0.7);
     
     // Perna Direita
-    theta_x = rightLimbAngle;
+    //theta_x = rightLimbAngle;
     drawCube(0.5, 1.0, 1.0, 1.0, 0.22, -1.35, 0, 0.70, 1, 0.7);
 
-    theta_x = 0; // Reset final
+    //theta_x = 0; // Reset final
 
     requestAnimationFrame(drawMelody);
 }
