@@ -1,3 +1,5 @@
+import * as m4 from '../math/m4.js';
+
 const vertexShaderSource = `
     attribute vec3 a_position;
     attribute vec3 a_normal;
@@ -84,78 +86,78 @@ function createProgram(gl, vertexShader, fragmentShader) {
     return program;
 }
 
-function setCubeVertices(side) {
-    let v = side / 2;
-    return new Float32Array([
-        // Front
-        v, v, v,
-        v, -v, v,
-        -v, v, v,
-        -v, v, v,
-        v, -v, v,
-        -v, -v, v,
-
-        // Left
-        -v, v, v,
-        -v, -v, v,
-        -v, v, -v,
-        -v, v, -v,
-        -v, -v, v,
-        -v, -v, -v,
-
-        // Back
-        -v, v, -v,
-        -v, -v, -v,
-        v, v, -v,
-        v, v, -v,
-        -v, -v, -v,
-        v, -v, -v,
-
-        // Right
-        v, v, -v,
-        v, -v, -v,
-        v, v, v,
-        v, v, v,
-        v, -v, v,
-        v, -v, -v,
-
-        // Top
-        v, v, v,
-        v, v, -v,
-        -v, v, v,
-        -v, v, v,
-        v, v, -v,
-        -v, v, -v,
-
-        // Bottom
-        v, -v, v,
-        v, -v, -v,
-        -v, -v, v,
-        -v, -v, v,
-        v, -v, -v,
-        -v, -v, -v,
-    ]);
+function setCubeVertices(side){
+  let v = side/2;
+  return new Float32Array([
+      // Front
+      v, v, v,
+      v, -v, v,
+      -v, v, v,
+      -v, v, v,
+      v, -v, v,
+      -v, -v, v,
+  
+      // Left
+      -v, v, v,
+      -v, -v, v,
+      -v, v, -v,
+      -v, v, -v,
+      -v, -v, v,
+      -v, -v, -v,
+  
+      // Back
+      -v, v, -v,
+      -v, -v, -v,
+      v, v, -v,
+      v, v, -v,
+      -v, -v, -v,
+      v, -v, -v,
+  
+      // Right
+      v, v, -v,
+      v, -v, -v,
+      v, v, v,
+      v, v, v,
+      v, -v, v,
+      v, -v, -v,
+  
+      // Top
+      v, v, v,
+      v, v, -v,
+      -v, v, v,
+      -v, v, v,
+      v, v, -v,
+      -v, v, -v,
+  
+      // Bottom
+      v, -v, v,
+      v, -v, -v,
+      -v, -v, v,
+      -v, -v, v,
+      v, -v, -v,
+      -v, -v, -v,
+  ]);
 }
 
 function setCubeNormals() {
-    const normals = [];
+  const normals = [];
 
-    const faceNormals = [
-        [0, 0, 1], // front
-        [-1, 0, 0], // left
-        [0, 0, -1], // back
-        [1, 0, 0], // right
-        [0, 1, 0], // top
-        [0, -1, 0], // bottom
-    ];
+  const faceNormals = [
+    [ 0,  0,  1], // front
+    [-1,  0,  0], // left
+    [ 0,  0, -1], // back
+    [ 1,  0,  0], // right
+    [ 0,  1,  0], // top
+    [ 0, -1,  0], // bottom
+  ];
 
-    for (let f = 0; f < 6; f++) {
-        for (let i = 0; i < 6; i++) {
-            normals.push(...faceNormals[f]);
-        }
+  for (let f = 0; f < 6; f++) {
+    for (let i = 0; i < 6; i++) {
+      normals.push(...faceNormals[f]);
     }
+  }
 
-    return new Float32Array(normals);
+  return new Float32Array(normals);
 }
 
 function main() {
@@ -178,16 +180,16 @@ function main() {
 
     const VertexBuffer = gl.createBuffer();
     const NormalBuffer = gl.createBuffer();
-
+    
     const colorUniformLocation = gl.getUniformLocation(program, 'u_color');
 
-    const modelViewMatrixUniformLocation = gl.getUniformLocation(program, 'u_modelViewMatrix');
-    const viewingMatrixUniformLocation = gl.getUniformLocation(program, 'u_viewingMatrix');
-    const projectionMatrixUniformLocation = gl.getUniformLocation(program, 'u_projectionMatrix');
+    const modelViewMatrixUniformLocation = gl.getUniformLocation(program,'u_modelViewMatrix');
+    const viewingMatrixUniformLocation = gl.getUniformLocation(program,'u_viewingMatrix');
+    const projectionMatrixUniformLocation = gl.getUniformLocation(program,'u_projectionMatrix');
     const inverseTransposeModelViewMatrixUniformLocation = gl.getUniformLocation(program, `u_inverseTransposeModelViewMatrix`);
 
-    const lightPositionUniformLocation = gl.getUniformLocation(program, 'u_lightPosition');
-    const viewPositionUniformLocation = gl.getUniformLocation(program, 'u_viewPosition');
+    const lightPositionUniformLocation = gl.getUniformLocation(program,'u_lightPosition');
+    const viewPositionUniformLocation = gl.getUniformLocation(program,'u_viewPosition');
 
     gl.enable(gl.DEPTH_TEST);
     gl.clearColor(1.0, 0.71, 0.75, 1.0); // Rosa bebe
@@ -196,13 +198,13 @@ function main() {
     let modelViewMatrix = [];
     let inverseTransposeModelViewMatrix = [];
 
-    let P0 = [0.0, 0.0, 2.0];
-    let Pref = [0.0, 0.0, 0.0];
-    let V = [0.0, 1.0, 0.0];
-    let viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
+    let P0 = [0.0,0.0,2.0];
+    let Pref = [0.0,0.0,0.0];
+    let V = [0.0,1.0,0.0];
+    let viewingMatrix = m4.setViewingMatrix(P0,Pref,V);
 
     gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
-    gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0, 1.0, 1.0]));
+    gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0,1.0, 1.0]));
 
     const aspecto = gl.canvas.width / gl.canvas.height;
 
@@ -213,14 +215,14 @@ function main() {
     let z_near = -1.0;
     let z_far = -20.0;
 
-    let projectionMatrix = m4.setPerspectiveProjectionMatrix(xw_min, xw_max, yw_min, yw_max, z_near, z_far);
+    let projectionMatrix = m4.setPerspectiveProjectionMatrix(xw_min,xw_max,yw_min,yw_max,z_near,z_far);
 
     // para cubos
     let vertices = [];
 
     let theta_x = 0; let theta_y = 0; let theta_z = 0;
 
-    function drawCube(tam, r, g, b, add_x, add_y, add_z, sx, sy, sz, deslocamentoY = 0) {
+    function drawCube(tam, r, g, b, add_x, add_y, add_z, sx, sy, sz) {
         vertices = setCubeVertices(tam);
 
         gl.enableVertexAttribArray(positionLocation);
@@ -233,42 +235,37 @@ function main() {
         gl.bufferData(gl.ARRAY_BUFFER, cubeNormals, gl.STATIC_DRAW);
         gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(normalLocation);
-
+        
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.scale(modelViewMatrix, sx, sy, sz);
-
-        if (deslocamentoY !== 0) {
-            modelViewMatrix = m4.translate(modelViewMatrix, 0, deslocamentoY, 0);
-        }
-
-        modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(theta_x));
-        modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(theta_y));
-        modelViewMatrix = m4.zRotate(modelViewMatrix, degToRad(theta_z));
-        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y + 0.5, add_z); // +0.5 para deixar desenho mais para cima
+        modelViewMatrix = m4.xRotate(modelViewMatrix,degToRad(theta_x));
+        modelViewMatrix = m4.yRotate(modelViewMatrix,degToRad(theta_y));
+        modelViewMatrix = m4.zRotate(modelViewMatrix,degToRad(theta_z));
+        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y + 0.2, add_z); // +0.5 para deixar desenho mais para cima
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
-
-        gl.uniformMatrix4fv(modelViewMatrixUniformLocation, false, modelViewMatrix);
-        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation, false, inverseTransposeModelViewMatrix);
-        gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
-        gl.uniformMatrix4fv(projectionMatrixUniformLocation, false, projectionMatrix);
-
-        gl.uniform3fv(colorUniformLocation, new Float32Array([r, g, b]));
+        
+        gl.uniformMatrix4fv(modelViewMatrixUniformLocation,false,modelViewMatrix);
+        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation,false,inverseTransposeModelViewMatrix);
+        gl.uniformMatrix4fv(viewingMatrixUniformLocation,false,viewingMatrix);
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,projectionMatrix);
+        
+        gl.uniform3fv(colorUniformLocation, new Float32Array([r,g,b]));
         gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
-        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([2.0, 2.0, 3.0]));
+        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([2.0,2.0,3.0]));
 
-        gl.drawArrays(gl.TRIANGLES, 0, 6 * 6);
+        gl.drawArrays(gl.TRIANGLES, 0, 6*6);
     }
 
-    P0 = [0.0, 0.0, 2.0];
-    Pref = [0.0, 0.0, 0.0];
-    V = [0.0, 1.0, 0.0];
-    viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
-
+    P0 = [0.0,0.0,2.0];
+    Pref = [0.0,0.0,0.0];
+    V = [0.0,1.0,0.0];
+    viewingMatrix = m4.setViewingMatrix(P0,Pref,V);
+    
     let angulo = 0;
 
     function rotaciona_camera() {
-        angulo += 0.01;
+        angulo += 0.05;
 
         const raio = 2.5;
         P0 = [raio * Math.sin(angulo), 0.0, raio * Math.cos(angulo)];
@@ -277,28 +274,10 @@ function main() {
         gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
     }
 
-    // Variável global para controlar o tempo da animação
-    let time = 0;
-
     function drawChococat() {
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Limpar buffer 
+        gl.clear(gl.COLOR_BUFFER_BIT);
 
-        rotaciona_camera();
-
-        // Animação 
-        time += 0.30; // Velocidade da animação
-
-        // Oscilação entre -1 e 1 baseada no tempo
-        // Multiplicamos por 20 para ter uma amplitude de 20 graus
-        let walkCycle = Math.sin(time) * 20;
-
-        // Ângulos para pernas e braços (fases opostas)
-        let leftLimbAngle = walkCycle;
-        let rightLimbAngle = -walkCycle;
-        // --------------------------
-
-        // Desenho Estático (Cabeça e Corpo)
-        theta_x = 0; theta_y = 0; theta_z = 0; // Resetar rotações bases
+        //rotaciona_camera();
 
         // Cor do chococat
         const rB = 0.0, gB = 0.0, bB = 0.0; // Black
@@ -308,8 +287,8 @@ function main() {
         drawCube(1.0, rB, gB, bB, 0, 0, 0, 1, 1, 1);                           // cima
         drawCube(0.2, rB, gB, bB, 0, -0.35, 0.05, 5, 1.5, 5);                  // baixo bigode
         theta_z = -80; drawCube(0.08, rB, gB, bB, 0.5, -0.2, 0.4, 1, 6, 1);    // bigode direito
-        theta_z = 70; drawCube(0.08, rB, gB, bB, 0.5, -0.25, 0.4, 1, 6, 1);   // bigode direito
-        theta_z = 80; drawCube(0.08, rB, gB, bB, -0.5, -0.2, 0.4, 1, 6, 1);   // bigode esquerdo
+        theta_z =  70; drawCube(0.08, rB, gB, bB, 0.5, -0.25, 0.4, 1, 6, 1);   // bigode direito
+        theta_z =  80; drawCube(0.08, rB, gB, bB, -0.5, -0.2, 0.4, 1, 6, 1);   // bigode esquerdo
         theta_z = -70; drawCube(0.08, rB, gB, bB, -0.5, -0.25, 0.4, 1, 6, 1);  // bigode esquerdo
         theta_z = 0;
 
@@ -330,40 +309,20 @@ function main() {
         drawCube(0.1, rB, gB, bB, 0.30, 0.75, 0.4, 1, 1.5, 1.5);    //preto
         drawCube(0.25, rB, gB, bB, 0.30, 0.55, 0.35, 1, 1, 1);      //preto maior
 
+        theta_z = -15; drawCube(0.08, rB, gB, bB, -0.5, -0.9, 0.1, 1.5, 7, 2.0);  // braço esquerda
+        theta_z =  15; drawCube(0.08, rB, gB, bB, 0.5, -0.9, 0.1, 1.5, 7, 2.0);   // braço direita
+        theta_z = 0;
+
+        theta_z = 0; drawCube(0.1, rB, gB, bB, 0.0, -0.6, -0.65, 1.5, 6, 1.0);  // rabo
+        theta_x = 120; drawCube(0.1, rB, gB, bB, 0.0, -0.95, -0.5, 1.5, 4, 1.0);  //RABO ligação
+        theta_x = 0;
+
         drawCube(0.85, rB, gB, bB, 0, -0.85, 0.05, 0.8, 0.7, 1.1);   // corpo preto
         drawCube(1.0, 0.0, 0.0, 1.0, 0, -0.55, 0.05, 0.8, 0.1, 1.2); // coleira azul
         drawCube(0.9, rB, gB, bB, 0, -0.8, 0.05, 0.9, 0.5, 1.2);     // barriga preto
-
-        // --- ANIMAÇÃO DOS MEMBROS ---
-
-        // Braço Esquerdo (move oposto à perna esquerda, igual à perna direita)
-        theta_x = rightLimbAngle;
-        drawCube(0.08, rB, gB, bB, -0.5, -0.9, 0.1, 2.5, 7, 2.0);
-
-        // Braço Direito
-        theta_x = leftLimbAngle;
-        drawCube(0.08, rB, gB, bB, 0.5, -0.9, 0.1, 2.5, 7, 2.0);
-
-        // Resetar rotação para evitar bugs
-        theta_x = 0;
-
-        // Perna Esquerda
-        theta_x = leftLimbAngle;
-        drawCube(0.4, rB, gB, bB, -0.22, -1.30, 0, 0.75, 1.0, 1);
-
-        // Perna Direita
-        theta_x = rightLimbAngle;
-        drawCube(0.4, rB, gB, bB, 0.22, -1.30, 0, 0.75, 1.0, 1);
-
-        theta_x = 0; // Reset final
-
-        //rabo mexendo
-        theta_z = leftLimbAngle;
-        drawCube(0.1, rB, gB, bB, 0.0, -1.1, -0.65, 1.5, 6, 1.0, 0.5); // rabo
-        theta_z = 0;
-
-        theta_x = 120; drawCube(0.1, rB, gB, bB, 0.0, -0.95, -0.5, 1.5, 4, 1.0);  //RABO ligação
-        theta_x = 0;
+        drawCube(0.4, rB, gB, bB, -0.22, -1.30, 0, 0.75, 1.0, 1);    // perna esquerda
+        drawCube(0.4, rB, gB, bB, 0.22, -1.30, 0, 0.75, 1.0, 1);     // perna direita
+       
 
         requestAnimationFrame(drawChococat);
     }
@@ -372,29 +331,29 @@ function main() {
 }
 
 function crossProduct(v1, v2) {
-    let result = [
-        v1[1] * v2[2] - v1[2] * v2[1],
-        v1[2] * v2[0] - v1[0] * v2[2],
-        v1[0] * v2[1] - v1[1] * v2[0]
-    ];
-    return result;
+  let result = [
+      v1[1] * v2[2] - v1[2] * v2[1],
+      v1[2] * v2[0] - v1[0] * v2[2],
+      v1[0] * v2[1] - v1[1] * v2[0]
+  ];
+  return result;
 }
 
-function unitVector(v) {
+function unitVector(v){ 
     let vModulus = vectorModulus(v);
-    return v.map(function (x) { return x / vModulus; });
+    return v.map(function(x) { return x/vModulus; });
 }
 
-function vectorModulus(v) {
-    return Math.sqrt(Math.pow(v[0], 2) + Math.pow(v[1], 2) + Math.pow(v[2], 2));
+function vectorModulus(v){
+    return Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2)+Math.pow(v[2],2));
 }
 
 function radToDeg(r) {
-    return r * 180 / Math.PI;
+  return r * 180 / Math.PI;
 }
 
 function degToRad(d) {
-    return d * Math.PI / 180;
+  return d * Math.PI / 180;
 }
 
 main();
