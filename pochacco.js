@@ -204,8 +204,8 @@ function main() {
     gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
     gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0,1.0,1.0]));
 
-    let xw_min = -1.0;
-    let xw_max = 1.0;
+    let xw_min = -2.048;
+    let xw_max = 2.048;
     let yw_min = -1.0;
     let yw_max = 1.0;
     let z_near = -1.0;
@@ -237,7 +237,7 @@ function main() {
         modelViewMatrix = m4.xRotate(modelViewMatrix,degToRad(theta_x));
         modelViewMatrix = m4.yRotate(modelViewMatrix,degToRad(theta_y));
         modelViewMatrix = m4.zRotate(modelViewMatrix,degToRad(theta_z));
-        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y + 0.5, add_z); // +0.5 para deixar desenho mais para cima
+        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y, add_z);
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
         
@@ -276,29 +276,30 @@ function main() {
         //rotaciona_camera();
 
         //tam, r, g, b, add_x, add_y, add_z, sx, sy, sz
-        drawCube(1.0, 1.0, 1.0, 1.0, 0, 0, 0, 1, 1, 1); // cabeca
-        drawCube(0.2, 1.0, 1.0, 1.0, 0, -0.35, 0.05, 5, 1.5, 5); // cabeca bigode
-        drawCube(0.1, 0.0, 0.0, 0.0, -0.3, -0.1, 0.5, 1, 2, 1); // olho esquerdo (em relacao a minha visao)
-        drawCube(0.1, 0.0, 0.0, 0.0, 0.3, -0.1, 0.5, 1, 2, 1); // olho direito (em relacao a minha visao)
-        drawCube(0.1, 0.0, 0.0, 0.0, 0.0, -0.2, 0.55, 1.5, 1, 1); // fucinho
-        theta_z = -10; drawCube(0.1, 0.0, 0.0, 0.0, -0.58, 0.15, 0.4, 1, 6, 1);  // orelha esquerda (em relacao a minha visao)
-        theta_z = 10; drawCube(0.1, 0.0, 0.0, 0.0, 0.58, 0.15, 0.4, 1, 6, 1); // orelha direita (em relacao a minha visao)
+        drawCube(0.8, 1.0, 1.0, 1.0, 0, 0, 0, 1, 1, 1); // cabeca
+        drawCube(0.8, 1.0, 1.0, 1.0, 0, -0.25, 0.05, 1, 0.35, 1); // cabeca bigode
+        drawCube(0.05, 0.0, 0.0, 0.0, -0.2, -0.02, 0.4, 1.8, 3, 1); // olho esquerdo
+        drawCube(0.05, 0.0, 0.0, 0.0, 0.2, -0.02, 0.4, 1.8, 3, 1); // olho direto
+        drawCube(0.05, 0.0, 0.0, 0.0, 0, -0.1, 0.45, 2.5, 1.5, 1); // fucinho
+        drawCube(0.2, 0.0, 0.0, 0.0, 0.45, 0.12, 0.0, 0.7, 2.5, 1); // orelha direita
+        drawCube(0.2, 0.0, 0.0, 0.0, -0.45, 0.12, 0.0, 0.7, 2.5, 1); // orelha esquerda
+        drawCube(0.8, 1.0, 1.0, 1.0, 0, -0.7, 0, 1, 0.7, 1); // corpo branco
+        drawCube(0.85, 1.0, 0.0, 0.0, 0, -0.6, 0, 1, 0.5, 1); // camisa vermelha
+        theta_z = 20;
+        drawCube(0.2, 1.0, 1.0, 1.0, 0.48, -0.6, 0.0, 1, 2, 1); // braco direito
+        drawCube(0.23, 1.0, 0.0, 0.0, 0.48, -0.5, 0.0, 1, 1, 1.2); // manga vermelha direita
+        theta_z = -20;
+        drawCube(0.2, 1.0, 1.0, 1.0, -0.48, -0.6, 0.0, 1, 2, 1); // braco esquerdo
+        drawCube(0.23, 1.0, 0.0, 0.0, -0.48, -0.5, 0.0, 1, 1, 1.2); // manga vermelha esquerda
         theta_z = 0;
-        drawCube(1.0, 1.0, 1.0, 1.0, 0, -0.85, 0.05, 0.8, 0.7, 1.1); // corpo branco
-        drawCube(1.0, 1.0, 0.0, 0.0, 0, -0.8, 0.05, 0.9, 0.5, 1.2); // corpo vermelho
-        drawCube(0.5, 1.0, 1.0, 1.0, -0.22, -1.35, 0, 0.75, 0.6, 1); // perna esquerda (em relacao a minha visao)
-        drawCube(0.5, 1.0, 1.0, 1.0, 0.22, -1.35, 0, 0.75, 0.6, 1); // perna direita (em relacao a minha visao)
-        theta_z = -30; drawCube(0.2, 1.0, 1.0, 1.0, -0.55, -0.8, 0.2, 1, 2, 1);  // braco esquerdo branco (em relacao a minha visao)
-        theta_z = -30; drawCube(0.2, 1.0, 0.0, 0.0, -0.5, -0.7, 0.2, 1, 1, 2);  // braco esquerdo vermelho (em relacao a minha visao)
-
-        theta_z = 30; drawCube(0.2, 1.0, 1.0, 1.0, 0.55, -0.8, 0.2, 1, 2, 1);  // braco direito branco (em relacao a minha visao)
-        theta_z = 30; drawCube(0.2, 1.0, 0.0, 0.0, 0.5, -0.7, 0.2, 1, 1, 2);  // braco esquerdo vermelho (em relacao a minha visao)
-        
-        theta_z = 20; drawCube(0.1, 0.0, 0.0, 0.0, -0.2, 0.6, 0.4, 1, 1.5, 1);  // cabelo esquerdo (em relacao a minha visao)
-        theta_z = 0; drawCube(0.1, 0.0, 0.0, 0.0, 0.0, 0.6, 0.4, 1, 1.5, 1);  // cabelo do meio
-        theta_z = -20; drawCube(0.1, 0.0, 0.0, 0.0, 0.2, 0.6, 0.4, 1, 1.5, 1);  // cabelo direito (em relacao a minha visao)
-
+        drawCube(0.5, 1.0, 1.0, 1.0, 0.2, -1.0, 0, 0.7, 1, 0.8); // perna direita
+        drawCube(0.5, 1.0, 1.0, 1.0, -0.2, -1.0, 0, 0.7, 1, 0.8); // perna esquerda
+        theta_z = 20;
+        drawCube(0.1, 0.0, 0.0, 0.0, -0.2, 0.5, 0, 1, 2.5, 1); // cabelo esquerdo
+        theta_z = -20;
+        drawCube(0.1, 0.0, 0.0, 0.0, 0.2, 0.5, 0, 1, 2.5, 1); // cabelo direito
         theta_z = 0;
+        drawCube(0.1, 0.0, 0.0, 0.0, 0.0, 0.55, 0, 1, 3, 1); // cabelo do meio
 
         //requestAnimationFrame(drawPochacco);
     }
