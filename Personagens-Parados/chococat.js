@@ -278,7 +278,7 @@ function main() {
         // Cor do chococat
         const rB = 0.0, gB = 0.0, bB = 0.0; // Black
 
-        //       tam, r, g, b, add_x, add_y, add_z, sx, sy, sz
+        // tam, r, g, b, add_x, add_y, add_z, sx, sy, sz
         //cabeça
         drawCube(1.0, rB, gB, bB, 0, 0, 0, 1, 1, 1);                           // cima
         drawCube(0.2, rB, gB, bB, 0, -0.35, 0.05, 5, 1.5, 5);                  // baixo bigode
@@ -304,12 +304,6 @@ function main() {
         drawCube(0.10, 1.0, 0.97, 0.7, 0.30, 0.55, 0.45, 1, 1, 1);   //amarelinho
         drawCube(0.1, rB, gB, bB, 0.30, 0.75, 0.4, 1, 1.5, 1.5);    //preto
         drawCube(0.25, rB, gB, bB, 0.30, 0.55, 0.35, 1, 1, 1);      //preto maior
-
-        //orelha triangular
-        //theta_z = -20; drawCube(0.08, rB, gB, bB, -0.4, 0.55, 0.4, 1, 6, 1);  // orelha esquerda
-        //theta_z =  20; drawCube(0.08, rB, gB, bB, 0.4, 0.55, 0.4, 1, 6, 1);   // orelha esquerda
-        //theta_z =  30; drawCube(0.08, rB, gB, bB, -0.20, 0.55, 0.4, 1, 6, 1); // orelha direita
-        //theta_z = -30; drawCube(0.08, rB, gB, bB, 0.20, 0.55, 0.4, 1, 6, 1);  // orelha direita
 
         theta_z = -15; drawCube(0.08, rB, gB, bB, -0.5, -0.9, 0.4, 1.5, 6, 1);  // braço esquerda
         theta_z =  15; drawCube(0.08, rB, gB, bB, 0.5, -0.9, 0.4, 1.5, 6, 1);   // braço esquerda
