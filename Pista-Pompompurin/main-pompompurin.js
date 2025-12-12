@@ -211,7 +211,8 @@ function main() {
     const projectionMatrix = m4.setPerspectiveProjectionMatrix(xw_min,xw_max,yw_min,yw_max,z_near,z_far);
 
     // --- Runner: estado do jogo ---
-    const lanes = [-2.0, 0.0, 2.0];
+    const laneOffset = 2.5;
+    const lanes = [-laneOffset, 0.0, laneOffset];
     let currentLane = 1;
 
     let posX = lanes[currentLane];
@@ -231,10 +232,17 @@ function main() {
     const baseSpeed = 8.0; // unidades por segundo
     let speed = baseSpeed;
 
+    const basePosY = 0.4;
+    let velY = 0.0;
+    let isJumping = false;
+
+    const gravity = -25.0;   // mais negativo = cai mais rápido
+    const jumpVel = 10.5;    // maior = pula mais alto
+
     function resetGame() {
         currentLane = 1;
         posX = lanes[currentLane];
-        posY = 0.4;
+        posY = basePosY;
         posZ = 0.0;
         rotacao = 180;
         walkCycle = 0;
@@ -274,7 +282,8 @@ function main() {
             for (const o of obstacles) {
                 const sameLane = o.lane === currentLane;
                 const closeZ = Math.abs(o.z - posZ) < 1.1;
-                if (sameLane && closeZ) {
+                const lowEnoughToHit = posY < basePosY + 0.7; // se estiver acima disso, “passa por cima”
+                if (sameLane && closeZ && lowEnoughToHit) {
                     gameOver = true;
                     break;
                 }
@@ -283,6 +292,16 @@ function main() {
             obstacles = obstacles.filter((o) => o.z <= posZ + 6.0);
         } else {
             walkCycle = 0;
+        }
+
+        // Física do pulo
+        velY += gravity * dt;
+        posY += velY * dt;
+
+        if (posY <= basePosY) {
+            posY = basePosY;
+            velY = 0.0;
+            isJumping = false;
         }
     }
 
@@ -301,6 +320,12 @@ function main() {
         if (k === 'arrowright' || k === 'd') {
             currentLane = Math.min(2, currentLane + 1);
             posX = lanes[currentLane];
+        }
+        if ((e.code === 'Space' || k === 'arrowup') && !gameOver) {
+            if (!isJumping) {
+                velY = jumpVel;
+                isJumping = true;
+            }
         }
     });
 
@@ -345,7 +370,7 @@ function main() {
     }
 
     function drawTrack() {
-        const laneWidth = 2.0;
+        const laneWidth = 2.5;
         const segmentLength = 12.0;
 
         const baseIndex = Math.floor((-posZ) / segmentLength);
@@ -374,7 +399,7 @@ function main() {
 
     function updateCamera() {
         const camDist = 6.0;
-        const camHeight = 3.2;
+        const camHeight = 4.0;
 
         P0 = [posX, camHeight, posZ + camDist];
         Pref = [posX, 0.0, posZ - 6.0];
