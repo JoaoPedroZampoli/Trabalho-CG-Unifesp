@@ -409,7 +409,7 @@ function main() {
     let yw_min = -1.0;
     let yw_max = 1.0;
     let z_near = -1.0;
-    let z_far = -20.0;
+    let z_far = -60.0;
     let projectionMatrix = m4.setPerspectiveProjectionMatrix(xw_min,xw_max,yw_min,yw_max,z_near,z_far);
 
     // para cubos
@@ -460,32 +460,105 @@ function main() {
         
         gl.uniform3fv(colorUniformLocation, new Float32Array([r,g,b]));
         gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
-        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([2.0,2.0,3.0]));
+        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([2.0,2.0,posZ + 3.0]));
 
         gl.drawArrays(gl.TRIANGLES, 0, 6*6);
     }
 
-    P0 = [0.0,0.5,3.0];
+    P0 = [0.0,2.5,3.5];
     Pref = [0.0,0.0,-10.0];
     V = [0.0,1.0,0.0];
     viewingMatrix = m4.setViewingMatrix(P0,Pref,V);
 
     // Orelhas:
-    let velocidade = 0.01;
-    let corrida = 0;
+    let velocidadeOrelhas = 0.01;
+    let corridaOrelhas = 0;
     let limite_x = 0.2;
 
     // Pernas:
     let andada = 0;
-    let velAndada = 0.07;
+    let velAndada = 0.15;
 
     // Interação:
     let posX = 0;     // posição horizontal do personagem
     let posY = 0;     // posição vertical (para pular)
+    let posZ = 0;     // posicao em Z
+    let velZ = 0.15;  // velocidade para andar
     let velY = 0;     // velocidade vertical (pulo)
     let gravity = -0.02; // gravidade
     let jumpPower = 0.3; // força do pulo
     let isJumping = false; 
+
+    let gameOver = false;
+
+    let obstacles = [];
+
+    function checkCollision() {
+        obstacles.forEach(o => {
+            let dx = Math.abs(posX - o.x);
+            let dz = Math.abs(posZ - o.z);
+
+            if (dx < 0.8 && dz < 0.8 && posY < 0.5) {
+                gameOver = true;
+            }
+        });
+    }
+
+    function spawnObstacle() {
+        const lanes = [-2, 0, 2];
+        const types = ["brigadeiro", "morango", "bombom", "melao"];
+
+        obstacles.push({
+            type: types[Math.floor(Math.random() * types.length)],
+            x: lanes[Math.floor(Math.random() * lanes.length)],
+            z: posZ - 30,
+            raio: 0.6
+        });
+    }
+
+    function cleanObstacles() {
+        obstacles = obstacles.filter(o => o.z < posZ + 5);
+    }
+
+    function drawObstacles() {
+        obstacles.forEach(o => {
+            if (o.type === "brigadeiro")
+                drawBrigadeiro(o.x, o.z);
+            else if (o.type === "morango")
+                drawBrigadeiroMorango(o.x, o.z);
+            else if(o.type === "bombom")
+                drawBombomChocolate(o.x, o.z);
+            else 
+                drawSorveteMelao(o.x, o.z);
+        });
+    }
+
+    let partesPista = [];
+    const pistaTamanho = 30;
+    const pistaLargura = 2;
+
+    for (let i = 0; i < 10; i++) {
+        spawnPartePista(-i * pistaTamanho);
+    }
+
+    function spawnPartePista(z) {
+        partesPista.push({
+            z: z
+        });
+    }
+
+    function atualizaPista() {
+        // remove pista que ficou para trás
+        if (partesPista.length > 0) {
+            let first = partesPista[0];
+            if (first.z > posZ + pistaTamanho) {
+                partesPista.shift();
+
+                let lastZ = partesPista[partesPista.length - 1].z;
+                spawnPartePista(lastZ - pistaTamanho);
+            }
+        }
+    }
 
     // Pista:
     const lanes = [-2, 0, 2]; // esquerda, centro, direita
@@ -516,27 +589,23 @@ function main() {
 
         // Atualiza posX com base na pista atual
         posX = lanes[currentLane];
-
-        // Atualiza câmera com base na posição atual do personagem:
-        P0 = [posX,0.5,3.0];
-        Pref = [posX,0.0,-10.0];
-        V = [0.0,1.0,0.0];
-        viewingMatrix = m4.setViewingMatrix(P0,Pref,V);
     }
 
     function drawPochacco() {
 
-        if(corrida > limite_x) {
-            velocidade = -velocidade;
-        } else if (corrida < 0 ) {
-            velocidade = -velocidade;
+        posZ -= velZ; // personagem andando
+
+        if(corridaOrelhas > limite_x) {
+            velocidadeOrelhas = -velocidadeOrelhas;
+        } else if (corridaOrelhas < 0 ) {
+            velocidadeOrelhas = -velocidadeOrelhas;
         }
-        corrida += velocidade;
+        corridaOrelhas += velocidadeOrelhas;
 
         andada += velAndada;
 
         // Movimento da orelha (e cabelos) (abre e fecha)
-        let movimentoOrelha = Math.sin(corrida * 4) * 20;
+        let movimentoOrelha = Math.sin(corridaOrelhas * 4) * 20;
         let movimentoBraco = Math.sin(andada * 2.5) * 20;
         let movimentoPerna = Math.sin(andada * 2.5 + Math.PI) * 20;
 
@@ -556,55 +625,61 @@ function main() {
 
         //tam, r, g, b, add_x, add_y, add_z, sx, sy, sz
         // Cabeca:
-        drawCube(0.8, 1.0, 1.0, 1.0, 0 + offsetX, 0 + offsetY, 0, 1, 1, 1);
+        drawCube(0.8, 1.0, 1.0, 1.0, 0 + offsetX, 0 + offsetY, 0 - posZ, 1, 1, 1);
         // Bigode:
-        drawCube(0.8, 1.0, 1.0, 1.0, 0 + offsetX, -0.25 + offsetY, 0.05, 1, 0.35, 1); 
+        drawCube(0.8, 1.0, 1.0, 1.0, 0 + offsetX, -0.25 + offsetY, 0.05 - posZ, 1, 0.35, 1); 
         // Olho Esquerdo:
-        drawCube(0.05, 0.0, 0.0, 0.0, -0.2 + offsetX, -0.02 + offsetY, 0.4, 1.8, 3, 1); 
+        drawCube(0.05, 0.0, 0.0, 0.0, -0.2 + offsetX, -0.02 + offsetY, 0.4 - posZ, 1.8, 3, 1); 
         // Olho Direito:
-        drawCube(0.05, 0.0, 0.0, 0.0, 0.2 + offsetX, -0.02 + offsetY, 0.4, 1.8, 3, 1); 
+        drawCube(0.05, 0.0, 0.0, 0.0, 0.2 + offsetX, -0.02 + offsetY, 0.4 - posZ, 1.8, 3, 1); 
         // Fucinho:
-        drawCube(0.05, 0.0, 0.0, 0.0, 0 + offsetX, -0.1 + offsetY, 0.45, 2.5, 1.5, 1); 
+        drawCube(0.05, 0.0, 0.0, 0.0, 0 + offsetX, -0.1 + offsetY, 0.45 - posZ, 2.5, 1.5, 1); 
         // Orelha Direita:
         theta_z = movimentoOrelha;
-        drawCube(0.2, 0.0, 0.0, 0.0, 0.45 + offsetX, 0.12 + offsetY, 0.0, 0.7, 2.5, 1); 
+        drawCube(0.2, 0.0, 0.0, 0.0, 0.45 + offsetX, 0.12 + offsetY, 0.0 - posZ, 0.7, 2.5, 1); 
         // Orelha Esquerda:
         theta_z = - movimentoOrelha;
-        drawCube(0.2, 0.0, 0.0, 0.0, -0.45 + offsetX, 0.12 + offsetY, 0.0, 0.7, 2.5, 1); 
+        drawCube(0.2, 0.0, 0.0, 0.0, -0.45 + offsetX, 0.12 + offsetY, 0.0 - posZ, 0.7, 2.5, 1); 
         theta_z = 0;
         // Corpo pelo branco:
-        drawCube(0.8, 1.0, 1.0, 1.0, 0 + offsetX, -0.7 + offsetY, 0, 1, 0.7, 1); 
+        drawCube(0.8, 1.0, 1.0, 1.0, 0 + offsetX, -0.7 + offsetY, 0 - posZ, 1, 0.7, 1); 
         // Camiseta vermelha:
-        drawCube(0.85, 1.0, 0.0, 0.0, 0 + offsetX, -0.6 + offsetY, 0, 1, 0.5, 1); 
+        drawCube(0.85, 1.0, 0.0, 0.0, 0 + offsetX, -0.6 + offsetY, 0 - posZ, 1, 0.5, 1); 
 
         // Braco direito:
         theta_z = 20; theta_x = movimentoBraco;
-        drawCube(0.2, 1.0, 1.0, 1.0, 0.48 + offsetX, -0.6 + offsetY, 0.0, 1, 2, 1); 
+        drawCube(0.2, 1.0, 1.0, 1.0, 0.48 + offsetX, -0.6 + offsetY, 0.0 - posZ, 1, 2, 1); 
         // Manga da camiseta direita:
-        drawCube(0.23, 1.0, 0.0, 0.0, 0.48 + offsetX, -0.5 + offsetY, 0.0, 1, 1, 1.2); 
+        drawCube(0.23, 1.0, 0.0, 0.0, 0.48 + offsetX, -0.5 + offsetY, 0.0 - posZ, 1, 1, 1.2); 
         // Braco esquerdo:
         theta_z = -20; theta_x = - movimentoBraco;
-        drawCube(0.2, 1.0, 1.0, 1.0, -0.48 + offsetX, -0.6 + offsetY, 0.0, 1, 2, 1); 
+        drawCube(0.2, 1.0, 1.0, 1.0, -0.48 + offsetX, -0.6 + offsetY, 0.0 - posZ, 1, 2, 1); 
         // Manga da camiseta esquerda:
-        drawCube(0.23, 1.0, 0.0, 0.0, -0.48 + offsetX, -0.5 + offsetY, 0.0, 1, 1, 1.2); 
+        drawCube(0.23, 1.0, 0.0, 0.0, -0.48 + offsetX, -0.5 + offsetY, 0.0 - posZ, 1, 1, 1.2); 
         theta_z = 0;
 
         // Perna direita:
         theta_x = movimentoPerna;
-        drawCube(0.5, 1.0, 1.0, 1.0, 0.2 + offsetX, -1.0 + offsetY, 0, 0.7, 1, 0.8); // perna direita
+        drawCube(0.5, 1.0, 1.0, 1.0, 0.2 + offsetX, -1.0 + offsetY, 0 - posZ, 0.7, 1, 0.8); // perna direita
         // Perna esquerda:
         theta_x = -movimentoPerna;
-        drawCube(0.5, 1.0, 1.0, 1.0, -0.2 + offsetX, -1.0 + offsetY, 0, 0.7, 1, 0.8); // perna esquerda
+        drawCube(0.5, 1.0, 1.0, 1.0, -0.2 + offsetX, -1.0 + offsetY, 0 - posZ, 0.7, 1, 0.8); // perna esquerda
         // Cabelo esquerdo:
         theta_z = 20 + movimentoOrelha; theta_x = 0;
-        drawCube(0.1, 0.0, 0.0, 0.0, -0.2 + offsetX, 0.5 + offsetY, 0, 1, 2.5, 1); // cabelo esquerdo
+        drawCube(0.1, 0.0, 0.0, 0.0, -0.2 + offsetX, 0.5 + offsetY, 0 - posZ, 1, 2.5, 1); // cabelo esquerdo
         // Cabelo direito:
         theta_z = -20 - movimentoOrelha;
-        drawCube(0.1, 0.0, 0.0, 0.0, 0.2 + offsetX, 0.5 + offsetY, 0, 1, 2.5, 1); // cabelo direito
+        drawCube(0.1, 0.0, 0.0, 0.0, 0.2 + offsetX, 0.5 + offsetY, 0 - posZ, 1, 2.5, 1); // cabelo direito
         // Cabelo do meio:
         theta_z = movimentoOrelha;
-        drawCube(0.1, 0.0, 0.0, 0.0, 0.0 + offsetX, 0.55 + offsetY, 0, 1, 3, 1); // cabelo do meio
+        drawCube(0.1, 0.0, 0.0, 0.0, 0.0 + offsetX, 0.55 + offsetY, 0 - posZ, 1, 3, 1); // cabelo do meio
         theta_z = 0;
+
+        // Atualiza câmera com base na posição atual do personagem:
+        P0 = [posX,2.5 + posY,3.5 + posZ];
+        Pref = [posX,0.0 + posY,-10.0 + posZ];
+        V = [0.0,1.0,0.0];
+        viewingMatrix = m4.setViewingMatrix(P0,Pref,V);
     }
 
     // Textura para brigadeiro
@@ -795,7 +870,7 @@ function main() {
         drawScene();
     };
 
-    function drawSorveteMelao(){
+    function drawSorveteMelao(posicaoX, posicaoZ){
         gl.useProgram(programText);
 
         const positionLocation = gl.getAttribLocation(programText, 'a_position');
@@ -803,7 +878,7 @@ function main() {
         const texcoordLocation = gl.getAttribLocation(programText, "a_texcoord");
         
         modelViewMatrix = m4.identity();
-        modelViewMatrix = m4.translate(modelViewMatrix, 0, -0.7, -4);
+        modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.7, posicaoZ);
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
 
@@ -934,7 +1009,7 @@ function main() {
         
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.scale(modelViewMatrix, sx, sy, sz);
-        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y, -add_z);
+        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y, add_z);
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
 
@@ -987,30 +1062,34 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, 6*6);
     }
 
-    function drawChao() {
-        //tam, add_x, add_y, add_z, sx, sy, sz
-        drawChaoTextura(1, 0, -1.8, 25, 2, 1, 51);
-        drawChaoTextura(1, -2, -1.8, 25, 2, 1, 51);
-        drawChaoTextura(1, 2, -1.8, 25, 2, 1, 51);
+    function drawPista() {
+        partesPista.forEach(pis => {
+            drawChaoTextura(1, 0, -1.8, pis.z, pistaLargura, 1, pistaTamanho);
+            drawChaoTextura(1, -2, -1.8, pis.z, pistaLargura, 1, pistaTamanho);
+            drawChaoTextura(1,  2, -1.8, pis.z, pistaLargura, 1, pistaTamanho);
+        });
     }
 
+    let spawnTimer = 0;
+
     function drawScene() {
+        if(gameOver) return;
+
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        spawnTimer++;
+        if (spawnTimer > 20) {
+            spawnObstacle();
+            spawnTimer = 0;
+        }
+
+        checkCollision();
+        cleanObstacles();
+        atualizaPista();
+
         drawPochacco();
-        drawBrigadeiro(2, -4);
-        drawBrigadeiroMorango(-2, -4);
-        drawSorveteMelao();
-        drawBombomChocolate(0, -10);
-        drawBrigadeiro(2, -7);
-        drawBrigadeiroMorango(0, -8);
-        drawBrigadeiro(2, -11);
-        drawBrigadeiroMorango(-2, -13);
-        drawBrigadeiro(0, -15);
-        drawBombomChocolate(0, -20);
-        drawBombomChocolate(2, -20);
-        drawBombomChocolate(-2, -20);
-        drawBrigadeiroMorango(-2, -22);
-        drawChao();
+        drawObstacles();
+        drawPista();
 
         requestAnimationFrame(drawScene);
     }
