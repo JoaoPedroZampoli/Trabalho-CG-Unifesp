@@ -856,7 +856,7 @@ function main() {
         gl.drawElements(gl.TRIANGLES, sphereIndices.length, gl.UNSIGNED_SHORT, 0);
     }
 
-    function drawBombomChocolate(){
+    function drawBombomChocolate(posicaoX, posicaoZ){
         gl.useProgram(program);
 
         const positionLocation = gl.getAttribLocation(program, 'a_position');
@@ -887,7 +887,7 @@ function main() {
         
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.xRotate(modelViewMatrix,degToRad(90));
-        modelViewMatrix = m4.translate(modelViewMatrix, 0, -0.8, -10);
+        modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ);
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
 
@@ -903,11 +903,95 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, conicVertices.length / 3);
     }
 
+    // Textura para chao
+    const textureChao = gl.createTexture();
+    const imageChao = new Image();
+    imageChao.src = "Pista-Pochacco/chao-rosa.webp";
+    imageChao.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, textureChao);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageChao);
+
+        // Allow non-power-of-two textures correctly (NO MIPMAPS)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textureChao);
+        const texLocation = gl.getUniformLocation(programText, "u_texture");
+
+        gl.uniform1i(texLocation, 0); // use TEXTURE0
+
+        drawScene();
+    };
+
+    function drawChaoTextura(tam, add_x, add_y, add_z, sx, sy, sz){
+        gl.useProgram(programText);
+
+        const positionLocation = gl.getAttribLocation(programText, 'a_position');
+        const normalLocation = gl.getAttribLocation(programText, 'a_normal');
+        const texcoordLocation = gl.getAttribLocation(programText, "a_texcoord");
+        
+        modelViewMatrix = m4.identity();
+        modelViewMatrix = m4.scale(modelViewMatrix, sx, sy, sz);
+        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y, -add_z);
+
+        inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
+
+        const modelViewMatrixUniformLocation = gl.getUniformLocation(programText,'u_modelViewMatrix');
+        const viewingMatrixUniformLocation = gl.getUniformLocation(programText,'u_viewingMatrix');
+        const projectionMatrixUniformLocation = gl.getUniformLocation(programText,'u_projectionMatrix');
+        const inverseTransposeModelViewMatrixUniformLocation = gl.getUniformLocation(programText, `u_inverseTransposeModelViewMatrix`);
+
+        const lightPositionUniformLocation = gl.getUniformLocation(programText,'u_lightPosition');
+        const viewPositionUniformLocation = gl.getUniformLocation(programText,'u_viewPosition');
+
+        gl.uniformMatrix4fv(modelViewMatrixUniformLocation,false,modelViewMatrix);
+        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation,false,inverseTransposeModelViewMatrix);
+        gl.uniformMatrix4fv(viewingMatrixUniformLocation,false,viewingMatrix);
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,projectionMatrix);
+
+        const vertices = setCubeVertices(tam);
+        const normals = setCubeNormals();
+        const texcoords = new Float32Array([
+            1,1, 1,0, 0,1, 0,1, 1,0, 0,0, // frente
+            0,1, 0,0, 1,1, 1,1, 0,0, 1,0, // esquerda
+            0,1, 0,0, 1,1, 1,1, 0,0, 1,0, // costas
+            1,1, 1,0, 0,1, 0,1, 1,0, 0,0, // direita
+            1,1, 1,0, 0,1, 0,1, 1,0, 0,0, // topo
+            1,1, 1,0, 0,1, 0,1, 1,0, 0,0  // fundo
+        ]);
+
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(normalLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, NormalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(texcoordLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, texcoords, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
+        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0,1.0,1.0]));
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textureChao);
+        gl.uniform1i(gl.getUniformLocation(programText, "u_texture"), 0);
+        
+        gl.drawArrays(gl.TRIANGLES, 0, 6*6);
+    }
+
     function drawChao() {
-        //tam, r, g, b, add_x, add_y, add_z, sx, sy, sz
-        drawCube(1, 204/255, 169/255, 221/255, 0, -1.8, 10, 2, 1, 21);
-        drawCube(1, 1, 141/255, 161/255, -2, -1.8, 10, 2, 1, 21);
-        drawCube(1, 1, 141/255, 161/255, 2, -1.8, 10, 2, 1, 21);
+        //tam, add_x, add_y, add_z, sx, sy, sz
+        drawChaoTextura(1, 0, -1.8, 25, 2, 1, 51);
+        drawChaoTextura(1, -2, -1.8, 25, 2, 1, 51);
+        drawChaoTextura(1, 2, -1.8, 25, 2, 1, 51);
     }
 
     function drawScene() {
@@ -916,12 +1000,16 @@ function main() {
         drawBrigadeiro(2, -4);
         drawBrigadeiroMorango(-2, -4);
         drawSorveteMelao();
-        drawBombomChocolate();
+        drawBombomChocolate(0, -10);
         drawBrigadeiro(2, -7);
         drawBrigadeiroMorango(0, -8);
         drawBrigadeiro(2, -11);
         drawBrigadeiroMorango(-2, -13);
         drawBrigadeiro(0, -15);
+        drawBombomChocolate(0, -20);
+        drawBombomChocolate(2, -20);
+        drawBombomChocolate(-2, -20);
+        drawBrigadeiroMorango(-2, -22);
         drawChao();
 
         requestAnimationFrame(drawScene);
