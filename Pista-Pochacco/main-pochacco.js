@@ -610,7 +610,7 @@ function main() {
     // Textura para brigadeiro
     const textureBrig = gl.createTexture();
     const imageBrig = new Image();
-    imageBrig.src = "brigadeiro.jpg";
+    imageBrig.src = "Pista-Pochacco/brigadeiro.jpg";
     imageBrig.onload = () => {
         gl.bindTexture(gl.TEXTURE_2D, textureBrig);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageBrig);
@@ -693,7 +693,7 @@ function main() {
     // Textura para brigadeiro de morango
     const textureBrigMorango = gl.createTexture();
     const imageBrigMorango = new Image();
-    imageBrigMorango.src = "brigadeiro-morango.jpg";
+    imageBrigMorango.src = "Pista-Pochacco/brigadeiro-morango.jpg";
     imageBrigMorango.onload = () => {
         gl.bindTexture(gl.TEXTURE_2D, textureBrigMorango);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageBrigMorango);
@@ -776,7 +776,7 @@ function main() {
     // Textura para sorvete de melão
     const textureSorveteMelao = gl.createTexture();
     const imageSorveteMelao = new Image();
-    imageSorveteMelao.src = "sorvete-melao.avif";
+    imageSorveteMelao.src = "Pista-Pochacco/sorvete-melao.avif";
     imageSorveteMelao.onload = () => {
         gl.bindTexture(gl.TEXTURE_2D, textureSorveteMelao);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageSorveteMelao);
