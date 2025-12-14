@@ -498,6 +498,10 @@ function main() {
     const lanes = [-2, 0, 2]; // esquerda, centro, direita
     let currentLane = 1; // começa na pista do meio
 
+    // Final da pista
+    const FINISH_LINE_Z = -100.0; // O quão longe é o final (ajuste conforme quiser)
+    let gameRunning = true;       // Controle para parar o jogo
+
     const bodyElement = document.querySelector("body");
     bodyElement.addEventListener("keydown", keyDown, false);
 
@@ -807,7 +811,7 @@ function main() {
         gl.bindTexture(gl.TEXTURE_2D, textureSorveteMelao);
         const texLocation = gl.getUniformLocation(programText, "u_texture");
 
-        gl.uniform1i(texLocation, 0); // use TEXTURE0
+        gl.uniform1i(texLocation, 0);
 
         drawScene();
     };
@@ -926,56 +930,109 @@ function main() {
         // O último parâmetro (escala Z) aumentei para 100 para cobrir o horizonte.
 
         // Centro
-        drawCube(1, 204 / 255, 169 / 255, 221 / 255, 0, -1.8, -zAtualPersonagem, 2, 1, 100);
+        drawCube(1, 0.8, 0.7, 0.9, 0, -1.8, -zAtualPersonagem, 2, 1, 100);
         // Esquerda
-        drawCube(1, 1, 141 / 255, 161 / 255, -2, -1.8, -zAtualPersonagem, 2, 1, 100);
+        drawCube(1, 0.9, 0.5, 0.5, -2, -1.8, -zAtualPersonagem, 2, 1, 100);
         // Direita
-        drawCube(1, 1, 141 / 255, 161 / 255, 2, -1.8, -zAtualPersonagem, 2, 1, 100);
+        drawCube(1, 0.9, 0.5, 0.5, 2, -1.8, -zAtualPersonagem, 2, 1, 100);
     }
+
+    function drawFinishLine() {
+        // A posição Z visual é FINISH_LINE_Z. 
+        // Como drawCube usa -Z, passamos -FINISH_LINE_Z para anular.
+
+        let zPos = -FINISH_LINE_Z;
+
+        // Coluna Esquerda (Cinza)
+        drawCube(1.0, 0.5, 0.5, 0.5, -3.5, 0, zPos, 1.05, 6, 1.05);
+
+        // Coluna Direita (Cinza)
+        drawCube(1.0, 0.5, 0.5, 0.5, 3.5, 0, zPos, 1.05, 6, 1.05);
+
+        // Faixa de Chegada em cima
+        // Esticada no eixo X (sx=8)
+        drawCube(1.0, 1.0, 0.5, 0.5, 0, 2.5, zPos, 8, 2.5, 0.2);
+
+        //faixa vermelha
+        drawCube(1.0, 1.0, 0.0, 0.0, 0, -0.5, zPos + 0.1, 8, 0.5, 0.2);
+
+        // Faixa no chão (Branca)
+        drawCube(1.0, 1.0, 1.0, 1.0, 0, -1.34, zPos, 8, 0.1, 1);
+
+        //(2.5 de altura - 1.8 do chão) / 2 = 0.25 de elevação
+
+        // letras F I M
+
+        //letra F
+        drawCube(1.0, 1.0, 1.0, 0.0, -2.0, 2.2, zPos - 0.1, 0.4, 1.0, 0.2); // letra F cor blue
+        drawCube(1.0, 1.0, 1.0, 0.0, -1.6, 2.55, zPos - 0.1, 0.8, 0.3, 0.2); // letra F cor blue
+        drawCube(1.0, 1.0, 1.0, 0.0, -1.6, 2.15, zPos - 0.1, 0.4, 0.3, 0.2); // letra F cor blue
+
+        //letra I
+        drawCube(1.0, 1.0, 1.0, 0.0, -0.5, 2.55, zPos - 0.1, 0.4, 0.3, 0.2); // letra I cor verde 
+        drawCube(1.0, 1.0, 1.0, 0.0, -0.5, 2.0, zPos - 0.1, 0.4, 0.6, 0.2); // letra I cor verde 
+
+        //letra M
+        drawCube(1.0, 1.0, 1.0, 0.0, 0.4, 2.2, zPos - 0.1, 0.4, 1.0, 0.2); // letra M cor  vermelha inicio 
+        drawCube(1.0, 1.0, 1.0, 0.0, 0.8, 2.55, zPos - 0.1, 0.4, 0.3, 0.2); // letra M cor  vermelha 
+        drawCube(1.0, 1.0, 1.0, 0.0, 1.2, 2.25, zPos - 0.1, 0.4, 0.3, 0.2); // letra M cor  vermelha meio        
+        drawCube(1.0, 1.0, 1.0, 0.0, 1.6, 2.55, zPos - 0.1, 0.4, 0.3, 0.2); // letra M cor  vermelha 
+        drawCube(1.0, 1.0, 1.0, 0.0, 2.0, 2.2, zPos - 0.1, 0.4, 1.0, 0.2); // letra M cor vermelha final
+
+    }
+
 
     function drawScene() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // --- ATUALIZAÇÃO DA FÍSICA ---
-        
-        // 1. Corrida Automática: O gato vai para o fundo (Z negativo)
-        posZ -= speedZ; // <--- NOVO: Atualiza posição Z a cada frame
+        if (gameRunning) {
 
-        // 2. Movimento Lateral (Lanes) e Pulo (Seu código existente)
-        if (corrida > limite_x) { velocidade = -velocidade; }
-        else if (corrida < 0) { velocidade = -velocidade; }
-        corrida += velocidade;
+            // 1. Corrida
+            posZ -= speedZ;
 
-        posY += velY;
-        velY += gravity;
-        if (posY <= 0) { posY = 0; velY = 0; isJumping = false; }
+            // 2. Verifica Linha de Chegada
+            // Como Z é negativo, "menor" significa "mais longe"
+            if (posZ + 1.5 <= FINISH_LINE_Z) {
+                gameRunning = false;
+                console.log("VENCEU!");
+                alert("PARABÉNS! VOCÊ CHEGOU!"); // Um aviso simples
+            }
+            
 
-        // --- ATUALIZAÇÃO DA CÂMERA ---
-        
-        // <--- MUDANÇA 4: A câmera agora é calculada AQUI dentro, todo frame.
-        // Ela pega o 'posX' (pista) e o 'posZ' (corrida).
-        // Câmera está em Z + 3 (atrás) e olha para Z - 10 (frente).
-        P0 = [posX, 0.6, posZ + 3.0]; 
+            // 3. Animação e Pulos
+            if (corrida > limite_x) { velocidade = -velocidade; }
+            else if (corrida < 0) { velocidade = -velocidade; }
+            corrida += velocidade;
+
+            posY += velY;
+            velY += gravity;
+            if (posY <= 0) { posY = 0; velY = 0; isJumping = false; }
+
+        } else {
+            // ver se der tempo, pq tem coisa pronta qlqr coisa
+            // Opcional: Se o jogo acabou, você pode fazer o gato pular de alegria ou girar
+            // Por enquanto, ele apenas congela.
+        }
+
+        // --- CÂMERA (Continua seguindo mesmo parado, ou congela na chegada) ---
+        P0 = [posX, 0.6, posZ + 3.0];
         Pref = [posX, 0.0, posZ - 10.0];
         V = [0.0, 1.0, 0.0];
         viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
 
         // --- DESENHO ---
+        drawChococat(posX, posY, posZ);
 
-        // Passamos posZ para o gato desenhar na profundidade certa
-        drawChococat(posX, posY, posZ); // <--- MUDANÇA 5: Passa posZ
-
-        // Objetos do cenário (Doces)
-        // Dica: Como o gato corre para o negativo, desenhe os doces em Z negativo (-10, -20, etc)
-        // Se quiser que eles apareçam "infinitamente", você precisará de uma lógica de repetição depois.
-        // Por enquanto, desenhe eles fixos para ver o gato passando:
+        // Desenha os doces (cenário)
         drawBrigadeiro(2, -10);
         drawBrigadeiroMorango(-2, -20);
-        drawSorveteMelao(); // Lembre de ajustar o Z dentro dessa função se quiser vê-lo
-        drawBombomChocolate(); 
+        drawSorveteMelao();
+        drawBombomChocolate();
 
-        // Chão acompanhando o gato
-        drawChao(posZ); // <--- MUDANÇA 6: Passa posZ para o chão acompanhar
+        // <--- NOVO: Desenha a linha de chegada
+        drawFinishLine();
+
+        drawChao(posZ);
 
         requestAnimationFrame(drawScene);
     }
