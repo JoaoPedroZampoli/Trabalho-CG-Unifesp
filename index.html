@@ -6,14 +6,11 @@
     <title>Hello Kitty</title>
     <style>
         body {
-            margin: 20px;
-            padding: 0;
-            background-color: white;
-            font-family: Arial, sans-serif;
+            font-family: Arial;
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #754c9e;
             margin-bottom: 30px;
         }
         table {
@@ -24,19 +21,47 @@
         td {
             border: 1px solid #ccc;
             padding: 15px;
-            text-align: center;
-            vertical-align: middle;
             background-color: #f9f9f9;
-        }
-        h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #555;
-            font-size: 14px;
         }
         canvas {
             border: 1px solid #999;
             background-color: black;
+        }
+        .jogo {
+            position: relative;
+            width: 1024px;
+            height: 500px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .tela-gameover {
+            position: absolute;
+            width: 40%;
+            height: 40%;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .botao{
+            background-color: pink;
+            color:rgba(0, 0, 0, 0.7);
+            font-size:20px;
+            display:flex;
+            padding:8px 16px;
+            border-radius:8px;
+            border:none;
+            cursor: pointer;
+        }
+        .botao:hover{
+            box-shadow: #c68ed2 0px 0px 8px;
+            transition: box-shadow 0.15s ease-in-out;
         }
     </style>
 </head>
@@ -46,7 +71,17 @@
     <table>
         <tr>
             <td>
-                <canvas id="glCanvas" width="1024" height="500"></canvas>
+                <div class="jogo">
+                    <canvas id="glCanvas" width="1024" height="500"></canvas>
+                        
+                    <div class="tela-gameover" id="tela-gameover">
+                        <h2>GAME OVER</h2>
+                        <div class="div-botao">
+                            <button class="botao" id="botao-reset">Reiniciar</button>
+                        </div>
+                    </div>
+                    
+                </div>
             </td>
         </tr>
     </table>

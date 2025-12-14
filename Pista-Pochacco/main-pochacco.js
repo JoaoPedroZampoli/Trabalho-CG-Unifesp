@@ -1072,8 +1072,33 @@ function main() {
 
     let spawnTimer = 0;
 
+    function resetGame() {
+        currentLane = 1;
+        posX = lanes[currentLane];
+        posY = 0;
+        posZ = 0;
+        gameOver = false;
+        obstacles = [];
+        spawnTimer = 0;
+
+        partesPista = [];
+        for (let i = 0; i < 10; i++) {
+            spawnPartePista(-i * pistaTamanho);
+        }
+
+        document.getElementById('tela-gameover').style.display = "none";
+    }
+
+    document.getElementById('botao-reset').addEventListener("click",resetGame);
+
     function drawScene() {
-        if(gameOver) return;
+        requestAnimationFrame(drawScene);
+
+        if(gameOver) {
+            // Desenhar Pochacco de frente
+            document.getElementById('tela-gameover').style.display = "flex";
+            return;
+        }
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -1090,8 +1115,6 @@ function main() {
         drawPochacco();
         drawObstacles();
         drawPista();
-
-        requestAnimationFrame(drawScene);
     }
 
     drawScene();
