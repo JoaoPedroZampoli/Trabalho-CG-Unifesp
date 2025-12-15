@@ -409,7 +409,7 @@ function main() {
     let yw_min = -1.0;
     let yw_max = 1.0;
     let z_near = -1.0;
-    let z_far = -20.0;
+    let z_far = -500.0;
     let projectionMatrix = m4.setPerspectiveProjectionMatrix(xw_min, xw_max, yw_min, yw_max, z_near, z_far);
 
     // para cubos
@@ -498,8 +498,17 @@ function main() {
     const lanes = [-2, 0, 2]; // esquerda, centro, direita
     let currentLane = 1; // começa na pista do meio
 
+    //obstáculos
+    const obstacles = [
+        { type: 1, x: 2, z: -10 },
+        { type: 2, x: -2, z: -20 },
+        { type: 3, x: 0, z: -35 }, // Sorvete no meio
+        { type: 4, x: 2, z: -50 },
+        { type: 1, x: -2, z: -65 },
+        { type: 2, x: 0, z: -80 }
+    ];
     // Final da pista
-    const FINISH_LINE_Z = -100.0; // O quão longe é o final (ajuste conforme quiser)
+    const FINISH_LINE_Z = -50.0; // O quão longe é o final (ajuste conforme quiser)
     let gameRunning = true;       // Controle para parar o jogo
 
     const bodyElement = document.querySelector("body");
@@ -712,12 +721,12 @@ function main() {
     }
 
     // Textura para brigadeiro de morango
-    const textureBrigMorango = gl.createTexture();
-    const imageBrigMorango = new Image();
-    imageBrigMorango.src = "brigadeiro-morango.jpg";
-    imageBrigMorango.onload = () => {
-        gl.bindTexture(gl.TEXTURE_2D, textureBrigMorango);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageBrigMorango);
+    const textureBeijinho = gl.createTexture();
+    const imageBeijinho = new Image();
+    imageBeijinho.src = "beijinho.jpg";
+    imageBeijinho.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, textureBeijinho);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageBeijinho);
 
         // Allow non-power-of-two textures correctly (NO MIPMAPS)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -725,7 +734,7 @@ function main() {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, textureBrigMorango);
+        gl.bindTexture(gl.TEXTURE_2D, textureBeijinho);
         const texLocation = gl.getUniformLocation(programText, "u_texture");
 
         gl.uniform1i(texLocation, 0); // use TEXTURE0
@@ -733,7 +742,7 @@ function main() {
         drawScene();
     };
 
-    function drawBrigadeiroMorango(posicaoX, posicaoZ) {
+    function drawBeijinho(posicaoX, posicaoZ) {
         gl.useProgram(programText);
 
         const positionLocation = gl.getAttribLocation(programText, 'a_position');
@@ -788,96 +797,13 @@ function main() {
         gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0, 1.0, 1.0]));
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, textureBrigMorango);
+        gl.bindTexture(gl.TEXTURE_2D, textureBeijinho);
         gl.uniform1i(gl.getUniformLocation(programText, "u_texture"), 0);
 
         gl.drawElements(gl.TRIANGLES, sphereIndices.length, gl.UNSIGNED_SHORT, 0);
     }
 
-    // Textura para sorvete de melão
-    const textureSorveteMelao = gl.createTexture();
-    const imageSorveteMelao = new Image();
-    imageSorveteMelao.src = "sorvete-melao.avif";
-    imageSorveteMelao.onload = () => {
-        gl.bindTexture(gl.TEXTURE_2D, textureSorveteMelao);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageSorveteMelao);
-
-        // Allow non-power-of-two textures correctly (NO MIPMAPS)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, textureSorveteMelao);
-        const texLocation = gl.getUniformLocation(programText, "u_texture");
-
-        gl.uniform1i(texLocation, 0);
-
-        drawScene();
-    };
-
-    function drawSorveteMelao() {
-        gl.useProgram(programText);
-
-        const positionLocation = gl.getAttribLocation(programText, 'a_position');
-        const normalLocation = gl.getAttribLocation(programText, 'a_normal');
-        const texcoordLocation = gl.getAttribLocation(programText, "a_texcoord");
-
-        modelViewMatrix = m4.identity();
-        modelViewMatrix = m4.translate(modelViewMatrix, 0, -0.7, -4);
-
-        inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
-
-        const modelViewMatrixUniformLocation = gl.getUniformLocation(programText, 'u_modelViewMatrix');
-        const viewingMatrixUniformLocation = gl.getUniformLocation(programText, 'u_viewingMatrix');
-        const projectionMatrixUniformLocation = gl.getUniformLocation(programText, 'u_projectionMatrix');
-        const inverseTransposeModelViewMatrixUniformLocation = gl.getUniformLocation(programText, `u_inverseTransposeModelViewMatrix`);
-
-        const lightPositionUniformLocation = gl.getUniformLocation(programText, 'u_lightPosition');
-        const viewPositionUniformLocation = gl.getUniformLocation(programText, 'u_viewPosition');
-
-        gl.uniformMatrix4fv(modelViewMatrixUniformLocation, false, modelViewMatrix);
-        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation, false, inverseTransposeModelViewMatrix);
-        gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
-        gl.uniformMatrix4fv(projectionMatrixUniformLocation, false, projectionMatrix);
-
-        let sphereData = null; let sphereVertices = []; let sphereNormals = []; let sphereTexcoords = []; let sphereIndices = [];
-        let n = 30; let radius = 0.6;
-        sphereData = createSphere(n, n, radius);
-        sphereVertices = new Float32Array(sphereData.positions);
-        sphereNormals = new Float32Array(sphereData.normals);
-        sphereIndices = new Uint16Array(sphereData.indices);
-        sphereTexcoords = new Float32Array(sphereData.texcoords);
-
-        gl.enableVertexAttribArray(positionLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, VertexBufferSphere);
-        gl.bufferData(gl.ARRAY_BUFFER, sphereVertices, gl.STATIC_DRAW);
-        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-
-        gl.enableVertexAttribArray(normalLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, NormalBufferSphere);
-        gl.bufferData(gl.ARRAY_BUFFER, sphereNormals, gl.STATIC_DRAW);
-        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
-
-        gl.enableVertexAttribArray(texcoordLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, sphereTexcoords, gl.STATIC_DRAW);
-        gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, IndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, sphereIndices, gl.STATIC_DRAW);
-
-        gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
-        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0, 1.0, 1.0]));
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, textureSorveteMelao);
-        gl.uniform1i(gl.getUniformLocation(programText, "u_texture"), 0);
-
-        gl.drawElements(gl.TRIANGLES, sphereIndices.length, gl.UNSIGNED_SHORT, 0);
-    }
-
-    function drawBombomChocolate() {
+    function drawBombomChocolate(posicaoX, posicaoZ) {
         gl.useProgram(program);
 
         const positionLocation = gl.getAttribLocation(program, 'a_position');
@@ -908,7 +834,7 @@ function main() {
 
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(90));
-        modelViewMatrix = m4.translate(modelViewMatrix, 0, -0.8, -10);
+        modelViewMatrix = m4.translate(modelViewMatrix, 0, -0.8, -10); //modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ); o troço desaparece
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
 
@@ -922,6 +848,134 @@ function main() {
         gl.uniform3fv(lightPositionUniformLocation, new Float32Array([0.0, -0.5, -8]));
 
         gl.drawArrays(gl.TRIANGLES, 0, conicVertices.length / 3);
+    }
+
+    function drawDoceLeite(posicaoX, posicaoZ) {
+        gl.useProgram(program);
+
+        const positionLocation = gl.getAttribLocation(program, 'a_position');
+        const normalLocation = gl.getAttribLocation(program, 'a_normal');
+
+        const colorUniformLocation = gl.getUniformLocation(program, 'u_color');
+
+        const modelViewMatrixUniformLocation = gl.getUniformLocation(program, 'u_modelViewMatrix');
+        const viewingMatrixUniformLocation = gl.getUniformLocation(program, 'u_viewingMatrix');
+        const projectionMatrixUniformLocation = gl.getUniformLocation(program, 'u_projectionMatrix');
+        const inverseTransposeModelViewMatrixUniformLocation = gl.getUniformLocation(program, `u_inverseTransposeModelViewMatrix`);
+
+        const lightPositionUniformLocation = gl.getUniformLocation(program, 'u_lightPosition');
+        const viewPositionUniformLocation = gl.getUniformLocation(program, 'u_viewPosition');
+
+        const conicVertices = setSuperConicSphereVertices(0.5, 40, 20, 0.5, 2);
+        const conicNormals = setSuperConicSphereNormals_flat(0.5, 20, 20, 1.5, 2.5);
+
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, conicVertices, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(normalLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, NormalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, conicNormals, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
+        modelViewMatrix = m4.identity();
+        modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(90));
+        modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ);
+
+        inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
+
+        gl.uniformMatrix4fv(modelViewMatrixUniformLocation, false, modelViewMatrix);
+        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation, false, inverseTransposeModelViewMatrix);
+        gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation, false, projectionMatrix);
+
+        gl.uniform3fv(colorUniformLocation, new Float32Array([0.10, 0.02, 0.01]));
+        gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
+        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([0.0, -0.5, -8]));
+
+        gl.drawArrays(gl.TRIANGLES, 0, conicVertices.length / 3);
+    }
+
+    function drawFruittella(posicaoX, posicaoZ) {
+        gl.useProgram(program);
+
+        const positionLocation = gl.getAttribLocation(program, 'a_position');
+        const normalLocation = gl.getAttribLocation(program, 'a_normal');
+
+        const colorUniformLocation = gl.getUniformLocation(program, 'u_color');
+
+        const modelViewMatrixUniformLocation = gl.getUniformLocation(program, 'u_modelViewMatrix');
+        const viewingMatrixUniformLocation = gl.getUniformLocation(program, 'u_viewingMatrix');
+        const projectionMatrixUniformLocation = gl.getUniformLocation(program, 'u_projectionMatrix');
+        const inverseTransposeModelViewMatrixUniformLocation = gl.getUniformLocation(program, `u_inverseTransposeModelViewMatrix`);
+
+        const lightPositionUniformLocation = gl.getUniformLocation(program, 'u_lightPosition');
+        const viewPositionUniformLocation = gl.getUniformLocation(program, 'u_viewPosition');
+
+        const conicVertices = setSuperConicSphereVertices(0.5, 60, 20, 0.5, 0.8);
+        const conicNormals = setSuperConicSphereNormals_flat(0.5, 20, 20, 1.5, 2.5);
+
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, conicVertices, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(normalLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, NormalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, conicNormals, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
+        modelViewMatrix = m4.identity();
+        modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(90));
+        modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ);
+
+        inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
+
+        gl.uniformMatrix4fv(modelViewMatrixUniformLocation, false, modelViewMatrix);
+        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation, false, inverseTransposeModelViewMatrix);
+        gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation, false, projectionMatrix);
+
+        gl.uniform3fv(colorUniformLocation, new Float32Array([0.9, 0.0, 0.0]));
+        gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
+        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([0.0, -0.5, -8]));
+
+        gl.drawArrays(gl.TRIANGLES, 0, conicVertices.length / 3);
+    }
+
+    // Função para desenhar o Bolo Gigante da Vitória
+    function drawVictoryCake(x, y, z) {
+        gl.useProgram(program);
+
+        // 1. Ligar os buffers do Bolo (Geometria complexa)
+        gl.bindBuffer(gl.ARRAY_BUFFER, cakePosBuffer);
+        gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(posLoc);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, cakeNormBuffer);
+        gl.vertexAttribPointer(normLoc, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(normLoc);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, cakeColBuffer);
+        gl.vertexAttribPointer(colLoc, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(colLoc);
+
+        // 2. Posicionar o Bolo
+        let modelMatrix = m4.identity();
+        modelMatrix = m4.translate(modelMatrix, x, y, z);
+        modelMatrix = m4.scale(modelMatrix, 2.0, 2.0, 2.0); // Vamos fazer um bolo GRANDE!
+
+        const invModel = m4.transpose(m4.inverse(modelMatrix));
+
+        // 3. Enviar Uniforms
+        gl.uniformMatrix4fv(uModel, false, modelMatrix);
+        gl.uniformMatrix4fv(uInvModel, false, invModel);
+        gl.uniformMatrix4fv(uView, false, viewingMatrix);
+        gl.uniformMatrix4fv(uProj, false, projectionMatrix);
+
+        // 4. Desenhar
+        gl.drawArrays(gl.TRIANGLES, 0, cakeData.vertexCount);
     }
 
     function drawChao(zAtualPersonagem) { // <--- MUDANÇA 3: Recebe a posição Z atual
@@ -981,25 +1035,61 @@ function main() {
 
     }
 
+    function checkCollisions() {
+        // Tamanho da "Caixa" de colisão (Hitbox)
+        // Como nossos cubos têm tamanho aproximado de 1.0, 
+        // uma distância menor que 0.8 significa que eles se tocaram.
+        let hitDist = 0.8;
+
+        for (let i = 0; i < obstacles.length; i++) {
+            let obs = obstacles[i];
+
+            // 1. Verifica se estão na mesma Pista (X)
+            // Usamos Math.abs para ver a diferença absoluta (distância)
+            let dist_X = Math.abs(posX - obs.x);
+
+            // 2. Verifica a profundidade (Z)
+            // O posZ do gato muda. O obs.z é fixo.
+            let dist_Z = Math.abs(posZ - obs.z);
+
+            // 3. Verifica a altura (Y) - Pulo
+            // Se o gato estiver no ar (posY alto), ele passa por cima.
+            // Vamos dizer que se posY > 1.2 ele desvia.
+            let safeHeight = 1.2;
+
+            // LÓGICA FINAL:
+            // Se X for perto E Z for perto E o gato estiver baixo... COLISÃO!
+            if (dist_X < hitDist && dist_Z < hitDist && posY < safeHeight) {
+                return true; // Bateu!
+            }
+        }
+        return false; // Não bateu em nada
+    }
+
 
     function drawScene() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         if (gameRunning) {
+            // --- ESTADO: JOGO RODANDO ---
 
-            // 1. Corrida
+            // 1. Física
             posZ -= speedZ;
 
-            // 2. Verifica Linha de Chegada
-            // Como Z é negativo, "menor" significa "mais longe"
+            // 2. Colisão
+            if (checkCollisions()) {
+                gameRunning = false;
+                console.log("GAME OVER");
+                alert("BATEU! Tente novamente.");
+            }
+            // 3.chegada
             if (posZ + 1.5 <= FINISH_LINE_Z) {
                 gameRunning = false;
                 console.log("VENCEU!");
-                alert("PARABÉNS! VOCÊ CHEGOU!"); // Um aviso simples
+                // alert("PARABÉNS! VOCÊ CHEGOU!"); // Comentei para não travar a animação
             }
-            
 
-            // 3. Animação e Pulos
+            // 4. Movimento do Gato
             if (corrida > limite_x) { velocidade = -velocidade; }
             else if (corrida < 0) { velocidade = -velocidade; }
             corrida += velocidade;
@@ -1008,35 +1098,72 @@ function main() {
             velY += gravity;
             if (posY <= 0) { posY = 0; velY = 0; isJumping = false; }
 
+            // 5. Câmera de Corrida (Seguindo)
+            P0 = [posX, 0.6, posZ + 3.0];
+            Pref = [posX, 0.0, posZ - 10.0];
+            V = [0.0, 1.0, 0.0];
+            viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
+
+            // 6. Desenhar Gato Correndo
+            drawChococat(posX, posY, posZ);
+
         } else {
-            // ver se der tempo, pq tem coisa pronta qlqr coisa
-            // Opcional: Se o jogo acabou, você pode fazer o gato pular de alegria ou girar
-            // Por enquanto, ele apenas congela.
+           // --- ESTADO: VITÓRIA / FIM DE JOGO ---
+            
+            time += 0.1;
+
+            let podiumX = posX;
+            let podiumZ = posZ; // O gato para onde bateu ou chegou
+            let podiumY = -1.8;
+
+            // Desenha o Bolo Gigante
+            drawVictoryCake(podiumX, podiumY, podiumZ);
+
+            // Calcula o pulo da vitória
+            let jumpHeight = Math.abs(Math.sin(time)) * 1.5;
+            let victoryCatY = podiumY + 1.2 + jumpHeight;
+
+            isJumping = true; // Força pose de pulo
+            
+            // Desenha o Gato no Pódio
+            drawChococat(podiumX, victoryCatY, podiumZ);
+
+            // Câmera Giratória (Cinematic)
+            let camRadius = 8.0;
+            let camX = podiumX + Math.sin(time * 0.2) * camRadius;
+            let camZ = podiumZ + Math.cos(time * 0.2) * camRadius;
+
+            P0 = [camX, 2.0, camZ];
+            Pref = [podiumX, 0.0, podiumZ];
+            V = [0.0, 1.0, 0.0];
+            viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
         }
 
-        // --- CÂMERA (Continua seguindo mesmo parado, ou congela na chegada) ---
-        P0 = [posX, 0.6, posZ + 3.0];
-        Pref = [posX, 0.0, posZ - 10.0];
-        V = [0.0, 1.0, 0.0];
-        viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
+       // --- DESENHO DO CENÁRIO (AMBIENTE) ---
+        // Isso acontece nos dois estados (rodando ou parado), 
+        // para o mundo não sumir quando você ganha.
 
-        // --- DESENHO ---
-        drawChococat(posX, posY, posZ);
+        for (let i = 0; i < obstacles.length; i++) {
+            let obs = obstacles[i];
 
-        // Desenha os doces (cenário)
-        drawBrigadeiro(2, -10);
-        drawBrigadeiroMorango(-2, -20);
-        drawSorveteMelao();
-        drawBombomChocolate();
+            // Só desenha se estiver perto da câmera (Otimização)
+            if (obs.z < posZ + 5 && obs.z > posZ - 200) {
+                if (obs.type === 1) drawBrigadeiro(obs.x, obs.z);
+                else if (obs.type === 2) drawBrigadeiro(obs.x, obs.z);
+                else if (obs.type === 3) drawDoceLeite(obs.x, obs.z);
+                else if (obs.type === 5) drawBombomChocolate(obs.x, obs.z);
+                else if (obs.type === 6) drawBeijinho(obs.x, obs.z);
+                else if (obs.type === 4) drawFruittella(obs.x, obs.z);
+            }
+        }
 
-        // <--- NOVO: Desenha a linha de chegada
         drawFinishLine();
-
+        
+        // O chão acompanha o Z do gato (seja correndo ou parado no pódio)
         drawChao(posZ);
 
         requestAnimationFrame(drawScene);
     }
-
     drawScene();
 }
 
