@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello Kitty</title>
+    <title>Hello Run</title>
     <style>
         body {
             font-family: Arial;
@@ -82,6 +82,20 @@
             text-align: center;
             gap: 30px;
         }
+        .tela-vitoria {
+            position: absolute;
+            width: 40%;
+            height: 60%;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 30px;
+        }
     </style>
 </head>
 <body>
@@ -109,6 +123,17 @@
                         </div>
                         <div class="div-botao">
                             <button class="botao" id="botao-start">Começar</button>
+                        </div>
+                    </div>
+
+                    <div class="tela-vitoria" id="tela-vitoria">
+                        <h2 style="color: rgb(119, 243, 95);">VITÓRIA</h2>
+                        <div>
+                            Parabéns, você conseguiu passar dessa fase! <br>
+                            Teste sua sorte na próxima!
+                        </div>
+                        <div class="div-botao">
+                            <button class="botao" id="botao-prox-fase">Próxima Fase</button>
                         </div>
                     </div>
                     

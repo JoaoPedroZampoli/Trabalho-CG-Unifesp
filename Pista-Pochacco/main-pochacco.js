@@ -492,6 +492,10 @@ function main() {
     let gameOver = false;
     let jogoIniciado = false;
 
+    let distPercorrida = 0;
+    let distVitoria = 300;
+    let vitoria = false;
+
     let obstacles = [];
 
     function checkCollision() {
@@ -595,6 +599,7 @@ function main() {
     function drawPochacco() {
 
         posZ -= velZ; // personagem andando
+        distPercorrida = Math.abs(posZ);
 
         if(corridaOrelhas > limite_x) {
             velocidadeOrelhas = -velocidadeOrelhas;
@@ -1109,6 +1114,13 @@ function main() {
         if(gameOver) {
             // Desenhar Pochacco de frente
             document.getElementById('tela-gameover').style.display = "flex";
+            return;
+        }
+
+        if(distPercorrida >= distVitoria && !vitoria) vitoria = true;
+
+        if(vitoria) {
+            document.getElementById('tela-vitoria').style.display = "flex";
             return;
         }
 
