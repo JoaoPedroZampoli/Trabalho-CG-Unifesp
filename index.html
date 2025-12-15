@@ -13,6 +13,9 @@
             color: #754c9e;
             margin-bottom: 30px;
         }
+        h2 {
+            margin: 0 0;
+        }
         table {
             border-collapse: collapse;
             margin: 0 auto;
@@ -48,6 +51,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            gap: 30px;
         }
         .botao{
             background-color: pink;
@@ -63,10 +67,25 @@
             box-shadow: #c68ed2 0px 0px 8px;
             transition: box-shadow 0.15s ease-in-out;
         }
+        .tela-start {
+            position: absolute;
+            width: 40%;
+            height: 60%;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 30px;
+        }
     </style>
 </head>
 <body>
-    <h1>Hello Kitty</h1>
+    <h1>Hello Run</h1>
     
     <table>
         <tr>
@@ -78,6 +97,18 @@
                         <h2>GAME OVER</h2>
                         <div class="div-botao">
                             <button class="botao" id="botao-reset">Reiniciar</button>
+                        </div>
+                    </div>
+
+                    <div class="tela-start" id="tela-start">
+                        <h2>Como Jogar:</h2>
+                        <div>
+                            ⬅️ Mover-se para a esquerda <br>
+                            ➡️ Mover-se para a direita <br>
+                            ⬆️ Pular
+                        </div>
+                        <div class="div-botao">
+                            <button class="botao" id="botao-start">Começar</button>
                         </div>
                     </div>
                     

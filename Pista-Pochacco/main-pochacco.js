@@ -490,6 +490,7 @@ function main() {
     let isJumping = false; 
 
     let gameOver = false;
+    let jogoIniciado = false;
 
     let obstacles = [];
 
@@ -1087,18 +1088,31 @@ function main() {
         }
 
         document.getElementById('tela-gameover').style.display = "none";
+        document.getElementById('tela-start').style.display = "flex";
+        jogoIniciado = false;
     }
 
     document.getElementById('botao-reset').addEventListener("click",resetGame);
 
+    document.getElementById('botao-start').addEventListener("click", () => {
+        jogoIniciado = true;
+        document.getElementById('tela-start').style.display = "none";
+        drawScene();
+    })
+
     function drawScene() {
-        requestAnimationFrame(drawScene);
+
+        if(!jogoIniciado) {
+            return; // Não desenha nada
+        }
 
         if(gameOver) {
             // Desenhar Pochacco de frente
             document.getElementById('tela-gameover').style.display = "flex";
             return;
         }
+
+        requestAnimationFrame(drawScene);
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -1116,8 +1130,6 @@ function main() {
         drawObstacles();
         drawPista();
     }
-
-    drawScene();
 }
 
 function crossProduct(v1, v2) {
