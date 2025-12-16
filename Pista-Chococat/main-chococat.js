@@ -485,14 +485,41 @@ function main() {
     let posY = 0;     // posição vertical (para pular)
 
     //Variáveis para o movimento para frente
-    let posZ = 0;          // Posição Z atual do personagem
-    let speedZ = 0.2;      // Velocidade da corrida (quão rápido ele vai para o fundo)
+    let posZ = 0;        // Posição Z atual do personagem
+    let speedZ = 0.2;    // Velocidade da corrida (quão rápido ele vai para o fundo)
 
-    let velY = 0;     // velocidade vertical (pulo)
+    let velY = 0;        // velocidade vertical (pulo)
     let gravity = -0.02; // gravidade
     let jumpPower = 0.3; // força do pulo
     let isJumping = false;
     let time = 0;
+
+    let partesPista = [];
+    const pistaTamanho = 30;
+    const pistaLargura = 2;
+
+    for (let i = 0; i < 10; i++) {
+        spawnPartePista(-i * pistaTamanho);
+    }
+
+    function spawnPartePista(z) {
+        partesPista.push({
+            z: z
+        });
+    }
+
+    function atualizaPista() {
+        // remove pista que ficou para trás
+        if (partesPista.length > 0) {
+            let first = partesPista[0];
+            if (first.z > posZ + pistaTamanho) {
+                partesPista.shift();
+
+                let lastZ = partesPista[partesPista.length - 1].z;
+                spawnPartePista(lastZ - pistaTamanho);
+            }
+        }
+    }
 
     // Pista:
     const lanes = [-2, 0, 2]; // esquerda, centro, direita
@@ -507,9 +534,11 @@ function main() {
         { type: 1, x: -2, z: -65 },
         { type: 2, x: 0, z: -80 }
     ];
+
     // Final da pista
-    const FINISH_LINE_Z = -50.0; // O quão longe é o final (ajuste conforme quiser)
-    let gameRunning = true;       // Controle para parar o jogo
+    const FINISH_LINE_Z = -100.0; // O quão longe é o final (ajuste conforme quiser)
+    let gameRunning = false;       // Controle para parar o jogo
+    let gameOver = false;        // Controle para tela de game over
 
     const bodyElement = document.querySelector("body");
     bodyElement.addEventListener("keydown", keyDown, false);
@@ -640,7 +669,7 @@ function main() {
     // Textura para brigadeiro
     const textureBrig = gl.createTexture();
     const imageBrig = new Image();
-    imageBrig.src = "brigadeiro.jpg";
+    imageBrig.src = "Pista-Chococat/brigadeiro.jpg";
     imageBrig.onload = () => {
         gl.bindTexture(gl.TEXTURE_2D, textureBrig);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageBrig);
@@ -720,10 +749,10 @@ function main() {
         gl.drawElements(gl.TRIANGLES, sphereIndices.length, gl.UNSIGNED_SHORT, 0);
     }
 
-    // Textura para brigadeiro de morango
+    // Textura para beijinho
     const textureBeijinho = gl.createTexture();
     const imageBeijinho = new Image();
-    imageBeijinho.src = "beijinho.jpg";
+    imageBeijinho.src = "Pista-Chococat/beijinho.jpg";
     imageBeijinho.onload = () => {
         gl.bindTexture(gl.TEXTURE_2D, textureBeijinho);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageBeijinho);
@@ -944,40 +973,6 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, conicVertices.length / 3);
     }
 
-    // Função para desenhar o Bolo Gigante da Vitória
-    function drawVictoryCake(x, y, z) {
-        gl.useProgram(program);
-
-        // 1. Ligar os buffers do Bolo (Geometria complexa)
-        gl.bindBuffer(gl.ARRAY_BUFFER, cakePosBuffer);
-        gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(posLoc);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, cakeNormBuffer);
-        gl.vertexAttribPointer(normLoc, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(normLoc);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, cakeColBuffer);
-        gl.vertexAttribPointer(colLoc, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(colLoc);
-
-        // 2. Posicionar o Bolo
-        let modelMatrix = m4.identity();
-        modelMatrix = m4.translate(modelMatrix, x, y, z);
-        modelMatrix = m4.scale(modelMatrix, 2.0, 2.0, 2.0); // Vamos fazer um bolo GRANDE!
-
-        const invModel = m4.transpose(m4.inverse(modelMatrix));
-
-        // 3. Enviar Uniforms
-        gl.uniformMatrix4fv(uModel, false, modelMatrix);
-        gl.uniformMatrix4fv(uInvModel, false, invModel);
-        gl.uniformMatrix4fv(uView, false, viewingMatrix);
-        gl.uniformMatrix4fv(uProj, false, projectionMatrix);
-
-        // 4. Desenhar
-        gl.drawArrays(gl.TRIANGLES, 0, cakeData.vertexCount);
-    }
-
     function drawChao(zAtualPersonagem) { // <--- MUDANÇA 3: Recebe a posição Z atual
         // O chão agora usa 'zAtualPersonagem' para se posicionar onde o gato está.
         // O 7º parâmetro (Z) é: -zAtualPersonagem.
@@ -1060,12 +1055,43 @@ function main() {
             // LÓGICA FINAL:
             // Se X for perto E Z for perto E o gato estiver baixo... COLISÃO!
             if (dist_X < hitDist && dist_Z < hitDist && posY < safeHeight) {
+                gameOver = true;
                 return true; // Bateu!
             }
         }
         return false; // Não bateu em nada
     }
 
+    let spawnTimer = 0;
+
+    function resetGame() {
+        currentLane = 1;
+        posX = lanes[currentLane];
+        posY = 0;
+        posZ = 0;
+        gameOver = false;
+        obstacles = [];
+        spawnTimer = 0;
+
+        /*
+        partesPista = [];
+        for (let i = 0; i < 10; i++) {
+            spawnPartePista(-i * pistaTamanho);
+        }
+        */
+
+        document.getElementById('tela-gameover').style.display = "none";
+        document.getElementById('tela-start').style.display = "flex";
+        gameRunning = false;
+    }
+
+    document.getElementById('botao-reset').addEventListener("click", resetGame);
+
+    document.getElementById('botao-start').addEventListener("click", () => {
+        gameRunning = true;
+        document.getElementById('tela-start').style.display = "none";
+        drawScene();
+    })
 
     function drawScene() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -1081,12 +1107,14 @@ function main() {
                 gameRunning = false;
                 console.log("GAME OVER");
                 alert("BATEU! Tente novamente.");
+                document.getElementById('tela-gameover').style.display = "flex";
+                return;
             }
             // 3.chegada
             if (posZ + 1.5 <= FINISH_LINE_Z) {
                 gameRunning = false;
                 console.log("VENCEU!");
-                // alert("PARABÉNS! VOCÊ CHEGOU!"); // Comentei para não travar a animação
+                alert("PARABÉNS! VOCÊ CHEGOU!"); // Comentei para não travar a animação
             }
 
             // 4. Movimento do Gato
@@ -1099,7 +1127,7 @@ function main() {
             if (posY <= 0) { posY = 0; velY = 0; isJumping = false; }
 
             // 5. Câmera de Corrida (Seguindo)
-            P0 = [posX, 0.6, posZ + 3.0];
+            P0 = [posX, 1.2, posZ + 4.0];
             Pref = [posX, 0.0, posZ - 10.0];
             V = [0.0, 1.0, 0.0];
             viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
@@ -1108,38 +1136,11 @@ function main() {
             drawChococat(posX, posY, posZ);
 
         } else {
-           // --- ESTADO: VITÓRIA / FIM DE JOGO ---
-            
-            time += 0.1;
-
-            let podiumX = posX;
-            let podiumZ = posZ; // O gato para onde bateu ou chegou
-            let podiumY = -1.8;
-
-            // Desenha o Bolo Gigante
-            drawVictoryCake(podiumX, podiumY, podiumZ);
-
-            // Calcula o pulo da vitória
-            let jumpHeight = Math.abs(Math.sin(time)) * 1.5;
-            let victoryCatY = podiumY + 1.2 + jumpHeight;
-
-            isJumping = true; // Força pose de pulo
-            
-            // Desenha o Gato no Pódio
-            drawChococat(podiumX, victoryCatY, podiumZ);
-
-            // Câmera Giratória (Cinematic)
-            let camRadius = 8.0;
-            let camX = podiumX + Math.sin(time * 0.2) * camRadius;
-            let camZ = podiumZ + Math.cos(time * 0.2) * camRadius;
-
-            P0 = [camX, 2.0, camZ];
-            Pref = [podiumX, 0.0, podiumZ];
-            V = [0.0, 1.0, 0.0];
-            viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
+            // --- ESTADO: VITÓRIA / FIM DE JOGO ---
+            // ainda vou ter que mudar
         }
 
-       // --- DESENHO DO CENÁRIO (AMBIENTE) ---
+        // --- DESENHO DO CENÁRIO (AMBIENTE) ---
         // Isso acontece nos dois estados (rodando ou parado), 
         // para o mundo não sumir quando você ganha.
 
@@ -1157,8 +1158,10 @@ function main() {
             }
         }
 
+        atualizaPista();
+
         drawFinishLine();
-        
+
         // O chão acompanha o Z do gato (seja correndo ou parado no pódio)
         drawChao(posZ);
 
