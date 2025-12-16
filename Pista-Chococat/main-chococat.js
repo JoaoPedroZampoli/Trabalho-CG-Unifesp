@@ -526,14 +526,21 @@ function main() {
     let currentLane = 1; // começa na pista do meio
 
     //obstáculos
-    const obstacles = [
-        { type: 1, x: 2, z: -10 },
-        { type: 2, x: -2, z: -20 },
-        { type: 3, x: 0, z: -35 }, // Sorvete no meio
-        { type: 4, x: 2, z: -50 },
-        { type: 1, x: -2, z: -65 },
-        { type: 2, x: 0, z: -80 }
-    ];
+
+    let obstacles = [];
+
+    function configurarObstaculos() {
+        obstacles = [
+            { type: 1, x: 2, z: -10 },
+            { type: 2, x: -2, z: -20 },
+            { type: 3, x: 0, z: -35 },
+            { type: 4, x: 2, z: -50 },
+            { type: 1, x: -2, z: -65 },
+            { type: 2, x: 0, z: -80 }
+        ];
+    }
+
+    configurarObstaculos();
 
     // Final da pista
     const FINISH_LINE_Z = -100.0; // O quão longe é o final (ajuste conforme quiser)
@@ -1069,20 +1076,28 @@ function main() {
         posX = lanes[currentLane];
         posY = 0;
         posZ = 0;
-        gameOver = false;
-        obstacles = [];
+        time = 0;
         spawnTimer = 0;
+        isJumping = false;
+        gameOver = false;
+        gameRunning = false;
 
-        /*
+        configurarObstaculos();
+
         partesPista = [];
         for (let i = 0; i < 10; i++) {
             spawnPartePista(-i * pistaTamanho);
         }
-        */
+
+        P0 = [posX, 0.6, 3.0];
+        Pref = [posX, 0.0, -10.0];
+        V = [0.0, 1.0, 0.0];
+        viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
 
         document.getElementById('tela-gameover').style.display = "none";
         document.getElementById('tela-start').style.display = "flex";
-        gameRunning = false;
+
+        drawScene();
     }
 
     document.getElementById('botao-reset').addEventListener("click", resetGame);
