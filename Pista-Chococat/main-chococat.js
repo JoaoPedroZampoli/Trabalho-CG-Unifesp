@@ -580,7 +580,7 @@ function main() {
     configurarObstaculos();
 
     // Final da pista
-    const FINISH_LINE_Z = -400.0;  // O quão longe é o final (ajuste conforme quiser)
+    const FINISH_LINE_Z = -5.0;  // O quão longe é o final (ajuste conforme quiser)
     let jogoIniciado = false;      // Controle para parar o jogo
     let gameOver = false;          // Controle para tela de game over
 
@@ -615,6 +615,22 @@ function main() {
         Pref = [posX, 0.0, -10.0];  // olhar para frente do personagem
         V = [0.0, 1.0, 0.0];        // vetor "up"
         viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
+    }
+
+    const btnReset = document.getElementById('botao-comeca-tudo-de-novo');
+
+    const btnPodium = document.getElementById('botao-ver-podio');
+
+    if (btnReset) {
+        btnProxima.addEventListener("click", () => {
+            window.location.href = "index.html?fase1";
+        });
+    }
+
+    if (btnPodium) {
+        btnProxima.addEventListener("click", () => {
+            window.location.href = "Podium/podium";
+        });
     }
 
     function drawChococat(offsetX, offsetY, offsetZ) {
@@ -1334,6 +1350,8 @@ function main() {
                 jogoIniciado = false;
                 console.log("VENCEU!");
                 alert("PARABÉNS! VOCÊ CHEGOU!");
+                document.getElementById('tela-vitoria-final').style.display = "flex";
+                return;
             }
 
             // Movimento do Gato
