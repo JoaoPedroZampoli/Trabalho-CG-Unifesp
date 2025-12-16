@@ -395,12 +395,12 @@ function main() {
     const texcoordBuffer = gl.createBuffer();
     const IndexBuffer = gl.createBuffer();
     
-    // Buffers específicos para o seu modelo do Blender
+    // Buffers específicos para Blender
     const objVertexBuffer = gl.createBuffer();
     const objNormalBuffer = gl.createBuffer();
     let objData = null; // Variável para guardar o modelo
 
-    // Função que vai lá buscar o arquivo
+    // Função que vai buscar o arquivo
     async function carregarModeloBlender() {
         try {
             const response = await fetch('rosquinhar.obj');
@@ -424,7 +424,7 @@ function main() {
     carregarModeloBlender(); // Chama a função para começar a carregar
 
     gl.enable(gl.DEPTH_TEST);
-    gl.clearColor(1.0, 0.75, 0.8, 1.0); // Azul ceu
+    gl.clearColor(1.0, 0.75, 0.8, 1.0); 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     let modelViewMatrix = [];
@@ -493,13 +493,11 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, 6 * 6);
     }
 
-    // Adicionei 'rotacaoX' no final dos argumentos
     function drawMeuModeloOBJ(px, py, pz, escala, rotacaoY = 0) {
         if (!objData) return; 
 
         gl.useProgram(program); 
 
-        // ... (Atributos e Buffers iguais ao anterior) ...
         const positionLocation = gl.getAttribLocation(program, 'a_position');
         const normalLocation = gl.getAttribLocation(program, 'a_normal');
         
@@ -511,15 +509,12 @@ function main() {
         gl.bindBuffer(gl.ARRAY_BUFFER, objNormalBuffer);
         gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 
-        // --- MATRIZES ---
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.translate(modelViewMatrix, px, py, pz);
         
-        // ROTAÇÃO EXTRA (Para a animação funcionar)
         if (rotacaoY !== 0) {
             modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(rotacaoY));
-            // Se quiser que ela gire igual roda (cambalhota), use xRotate.
-            // Se quiser que ela gire igual pião, use yRotate.
+            
         }
 
         modelViewMatrix = m4.scale(modelViewMatrix, escala, escala, escala);
@@ -577,24 +572,7 @@ function main() {
             let dx = Math.abs(posX - o.x);
             let dz = Math.abs(posZ - o.z);
 
-            // 1. Valores padrão para doces pequenos (brigadeiro, morango)
-            let larguraHitbox = 0.8; 
-            let alturaHitbox = 0.5;
-
-            // 2. AJUSTE PARA A ROSQUINHA (Ela é maior!)
-            if (o.type === "rosquinha") {
-                larguraHitbox = 1.2; // Aumentamos a largura (era 0.8)
-                alturaHitbox = 1.5;  // Aumentamos a altura (era 0.5) -> Assim, mesmo pulando baixo, você bate.
-            }
-
-            // 3. AJUSTE PARA O CUPCAKE (Ele é alto)
-            if (o.type === "cupcake") {
-                alturaHitbox = 1.0;
-            }
-
-            // Verifica a colisão com os valores ajustados
-            if (dx < larguraHitbox && dz < larguraHitbox && posY < alturaHitbox) {
-                console.log("Colisão detectada com: " + o.type);
+            if (dx < 0.8 && dz < 0.8 && posY < 0.5) {
                 gameOver = true;
             }
         });
@@ -604,11 +582,9 @@ function main() {
         const lanes = [-2, 0, 2];
         const types = ["brigadeiro", "morango", "bombom", "melao", "cupcake"];
 
-        // 1. Sorteamos o tipo e a pista ANTES de criar o objeto
         let tipoSorteado = types[Math.floor(Math.random() * types.length)];
         let laneSorteada = lanes[Math.floor(Math.random() * lanes.length)];
 
-        // 2. Criamos o objeto básico
         let novoObstaculo = {
             type: tipoSorteado,
             x: laneSorteada,
@@ -616,17 +592,14 @@ function main() {
             raio: 0.6
         };
 
-        // 3. A MÁGICA: Se for cupcake, criamos a cor AGORA e salvamos no objeto
         if (tipoSorteado === "cupcake") {
             novoObstaculo.corCobertura = [
                 0.3 + Math.random() * 0.2, // R (Vermelho)
                 0.3 + Math.random() * 0.4, // G (Verde)
                 0.3 + Math.random() * 0.6  // B (Azul)
             ];
-            // Nota: O "0.3 +" serve para a cor não ficar muito escura/preta
         }
 
-        // 4. Adiciona na lista
         obstacles.push(novoObstaculo);
     }
 
@@ -706,8 +679,6 @@ function main() {
                 }
                 break;
         }
-
-        // Atualiza posX com base na pista atual
         posX = lanes[currentLane];
     }
 
@@ -1203,7 +1174,7 @@ function main() {
 
     }
 
-    // Textura para chao (XADREZ PROCEDURAL)
+    // Textura para chao 
     const textureChao = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, textureChao);
 
@@ -1332,9 +1303,6 @@ function main() {
                 let zPos = pis.z + (i * 10); 
                 let cor = cores[(indexPista + i) % 3]; 
 
-                // --- AQUI ESTÁ A MUDANÇA ---
-                // Se sua rosquinha estiver "em pé" (tipo roda), coloque 90.
-                // Se ela estiver "deitada" (tipo no prato), coloque 0.
                 let anguloFixo = 0; 
 
                 // LADO ESQUERDO (Parada)
@@ -1382,7 +1350,6 @@ function main() {
         }
 
         if (gameOver) {
-            // Desenhar Pochacco de frente
             document.getElementById('tela-gameover').style.display = "flex";
             return;
         }
