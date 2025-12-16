@@ -591,10 +591,9 @@ function main() {
                 }
                 break;
         }
+        // Atualiza posX com base na pista atual
+        posX = lanes[currentLane];
     }
-
-    // Atualiza posX com base na pista atual
-    posX = lanes[currentLane];
 
     // --- CONFIGURAÇÃO DO BOTÃO (Fica fora do drawScene) ---
     // O Javascript fica "ouvindo" o clique desde o começo, 
