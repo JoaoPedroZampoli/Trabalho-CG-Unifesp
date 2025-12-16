@@ -402,7 +402,6 @@ function main() {
     let modelViewMatrix = [];
     let inverseTransposeModelViewMatrix = [];
 
-
     // Camera Perspectiva:
     let xw_min = -2.048;
     let xw_max = 2.048;
@@ -466,23 +465,18 @@ function main() {
     }
 
     //[rotação, posição câmera, posição olhar, vetor up]
-    P0 = [0.0, 0.5, 3.0]; // posição da câmera
+    P0 = [0.0, 2.5, 3.5]; // posição da câmera
     Pref = [0.0, 0.0, -10.0]; // ponto para onde a câmera olha
     V = [0.0, 1.0, 0.0];
     viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
 
-    // Orelhas:
     let velocidade = 0.01;
     let corrida = 0;
     let limite_x = 0.2;
 
-    // Pernas:
-    let andada = 0;
-    let velAndada = 0.07;
-
     // Interação:
-    let posX = 0;     // posição horizontal do personagem
-    let posY = 0;     // posição vertical (para pular)
+    let posX = 0;        // posição horizontal do personagem
+    let posY = 0;        // posição vertical (para pular)
 
     //Variáveis para o movimento para frente
     let posZ = 0;        // Posição Z atual do personagem
@@ -526,7 +520,6 @@ function main() {
     let currentLane = 1; // começa na pista do meio
 
     //obstáculos
-
     let obstacles = [];
 
     function configurarObstaculos() {
@@ -536,16 +529,19 @@ function main() {
             { type: 3, x: 0, z: -35 },
             { type: 4, x: 2, z: -50 },
             { type: 1, x: -2, z: -65 },
-            { type: 2, x: 0, z: -80 }
+            { type: 2, x: 0, z: -80 },
+            { type: 5, x: 2, z: -90 },
+            { type: 6, x: -2, z: -110 },
+            { type: 7, x: 0, z: -120 }
         ];
     }
 
     configurarObstaculos();
 
     // Final da pista
-    const FINISH_LINE_Z = -100.0; // O quão longe é o final (ajuste conforme quiser)
-    let gameRunning = false;       // Controle para parar o jogo
-    let gameOver = false;        // Controle para tela de game over
+    const FINISH_LINE_Z = -100.0;  // O quão longe é o final (ajuste conforme quiser)
+    let jogoIniciado = false;      // Controle para parar o jogo
+    let gameOver = false;          // Controle para tela de game over
 
     const bodyElement = document.querySelector("body");
     bodyElement.addEventListener("keydown", keyDown, false);
@@ -580,13 +576,10 @@ function main() {
         viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
     }
 
-    // Adicionei offsetZ nos parâmetros
-    function drawChococat(offsetX, offsetY, offsetZ) { // <--- MUDANÇA 1: Recebe Z
+    function drawChococat(offsetX, offsetY, offsetZ) {
         // Atualiza o tempo
         time += 0.30;
 
-        // --- 1. DEFINIÇÃO DOS ÂNGULOS (MÁQUINA DE ESTADOS) ---
-        // (Essa parte da lógica de animação continua igualzinha à sua)
         let armL_AngleX = 0, armR_AngleX = 0;
         let armL_AngleZ = 0, armR_AngleZ = 0;
         let legL_AngleX = 0, legR_AngleX = 0;
@@ -605,14 +598,8 @@ function main() {
             legL_AngleZ = 0; legR_AngleZ = 0;
         }
 
-        // --- 2. DESENHO ---
         const rB = 0.1, gB = 0.1, bB = 0.1;
         theta_x = 0; theta_y = 0; theta_z = 0;
-
-        // <--- MUDANÇA 2: Em TODOS os drawCube abaixo, no parâmetro Z (7º argumento),
-        // eu subtraí o offsetZ. (Ex: 0 - offsetZ).
-        // Como sua drawCube faz "-add_z", se offsetZ for -10 (fundo),
-        // 0 - (-10) = +10. A drawCube inverte para -10. O gato vai para o fundo!
 
         // Cabeça
         drawCube(1.0, rB, gB, bB, 0 + offsetX, 0 + offsetY, 0 - offsetZ, 1, 1, 1);
@@ -870,7 +857,7 @@ function main() {
 
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(90));
-        modelViewMatrix = m4.translate(modelViewMatrix, 0, -0.8, -10); //modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ); o troço desaparece
+        modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ); //modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ); o troço desaparece
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
 
@@ -980,11 +967,106 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, conicVertices.length / 3);
     }
 
-    function drawChao(zAtualPersonagem) { // <--- MUDANÇA 3: Recebe a posição Z atual
-        // O chão agora usa 'zAtualPersonagem' para se posicionar onde o gato está.
-        // O 7º parâmetro (Z) é: -zAtualPersonagem.
-        // O último parâmetro (escala Z) aumentei para 100 para cobrir o horizonte.
+    function drawCupcake(x_pos, z_pos, corRandomica) {
 
+        // Cores 
+        const corForminha = [0.2, 0.6, 0.8];    // Azulzinho
+        const corMassa = [0.94, 0.90, 0.55]; // Baunilha
+        const corCobertura = corRandomica || [1.0, 0.4, 0.7];  // Rosa choque
+        const corCereja = [0.9, 0.0, 0.0];    // Vermelho
+
+        // Começa mais em baixo
+        let AtualY = -0.8;
+
+        // forminha q eh base octagonal
+
+        // Parte A: Cubo normal
+        theta_y = 0;
+        drawCube(1.0, corForminha[0], corForminha[1], corForminha[2], x_pos, AtualY, z_pos, 0.8, 0.7, 0.8);
+
+        // Parte B: Cubo rodado 45 graus (cria as pontas)
+        theta_y = 45;
+        drawCube(1.0, corForminha[0], corForminha[1], corForminha[2], x_pos, AtualY, z_pos, 0.8, 0.7, 0.8);
+
+        theta_y = 0;
+
+        // Sobe para a próxima camada
+        AtualY += 0.35 + 0.15;
+
+        // massa creme
+        drawCube(1.0, corMassa[0], corMassa[1], corMassa[2], x_pos, AtualY, -z_pos, 1.0, 0.3, 1.0);
+
+        theta_y = 45;
+        drawCube(1.0, corMassa[0], corMassa[1], corMassa[2], x_pos, AtualY, -z_pos, 1.0, 0.3, 1.0);
+        theta_y = 0;
+
+        AtualY += 0.15 + 0.15;
+
+        // cobertura - Camada 1 (Base larga)
+        // Um pouco menor que a massa (0.9)
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.9, 0.3, 0.9);
+
+        theta_y = 45;
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.9, 0.3, 0.9);
+        theta_y = 0;
+
+        AtualY += 0.15 + 0.125; // Sobe para a próxima camada (altura 0.25)
+
+        //cobertura - Camada 2 (Meio)
+        // Mais estreita (0.65)
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.65, 0.25, 0.65);
+
+        theta_y = 45;
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.65, 0.25, 0.65);
+        theta_y = 0;
+
+        AtualY += 0.125 + 0.1;
+
+        // cobertura - Camada 3 (Topo)
+        // Bem estreita (0.4)
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.4, 0.2, 0.4);
+
+        theta_y = 45;
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.4, 0.2, 0.4);
+        theta_y = 0;
+
+        AtualY += 0.1 + 0.1;
+
+        // cereja
+        drawCube(1.0, corCereja[0], corCereja[1], corCereja[2], x_pos, AtualY, -z_pos, 0.2, 0.2, 0.2);
+        // Cabinho da cereja 
+        drawCube(0.6, 0.0, 0.5, 0.0, x_pos, AtualY + 0.15, -z_pos, 0.05, 0.7, 0.05);
+        //cabo c textura
+        theta_y = 45;
+        drawCube(0.6, 0.0, 0.5, 0.0, x_pos, AtualY + 0.15, -z_pos, 0.05, 0.7, 0.05);
+        theta_y = 0;
+        //cabo inclinado
+        theta_x = 120;
+        drawCube(0.6, 0.0, 0.5, 0.0, x_pos, AtualY + 0.35, -(z_pos + 0.05), 0.05, 0.2, 0.05);
+        theta_x = 0;
+
+        // Granulado colorido 
+        let ySprinkle = AtualY - 0.35; // Altura da camada base da cobertura
+        //verde
+        drawCube(0.06, 0.0, 1.0, 0.0, x_pos + 0.35, ySprinkle, z_pos + 0.35, 1, 1, 1);
+        //amarelo
+        drawCube(0.06, 1.0, 1.0, 0.0, x_pos - 0.35, ySprinkle, z_pos + 0.35, 1, 1, 1);
+        //azul
+        drawCube(0.06, 0.0, 0.0, 1.0, x_pos + 0.35, ySprinkle, z_pos - 0.35, 1, 1, 1);
+        //laranja
+        drawCube(0.06, 1.0, 0.5, 0.0, x_pos - 0.35, ySprinkle, z_pos - 0.35, 1, 1, 1);
+        // Roxo
+        drawCube(0.06, 1.0, 0.0, 1.0, x_pos + 0.45, ySprinkle, z_pos, 1, 1, 1);
+        //  Ciano
+        drawCube(0.06, 0.0, 1.0, 1.0, x_pos - 0.45, ySprinkle, z_pos, 1, 1, 1);
+        //  Branco
+        drawCube(0.06, 1.0, 1.0, 1.0, x_pos, ySprinkle, z_pos + 0.45, 1, 1, 1);
+        // rosa
+        drawCube(0.06, 0.906, 0.329, 0.502, x_pos, ySprinkle, z_pos - 0.45, 1, 1, 1);
+
+    }
+
+    function drawChao(zAtualPersonagem) {
         // Centro
         drawCube(1, 0.8, 0.7, 0.9, 0, -1.8, -zAtualPersonagem, 2, 1, 100);
         // Esquerda
@@ -994,8 +1076,6 @@ function main() {
     }
 
     function drawFinishLine() {
-        // A posição Z visual é FINISH_LINE_Z. 
-        // Como drawCube usa -Z, passamos -FINISH_LINE_Z para anular.
 
         let zPos = -FINISH_LINE_Z;
 
@@ -1080,7 +1160,7 @@ function main() {
         spawnTimer = 0;
         isJumping = false;
         gameOver = false;
-        gameRunning = false;
+        jogoIniciado = false;
 
         configurarObstaculos();
 
@@ -1103,7 +1183,7 @@ function main() {
     document.getElementById('botao-reset').addEventListener("click", resetGame);
 
     document.getElementById('botao-start').addEventListener("click", () => {
-        gameRunning = true;
+        jogoIniciado = true;
         document.getElementById('tela-start').style.display = "none";
         drawScene();
     })
@@ -1111,28 +1191,28 @@ function main() {
     function drawScene() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        if (gameRunning) {
+        if (jogoIniciado) {
             // --- ESTADO: JOGO RODANDO ---
 
-            // 1. Física
+            // Física
             posZ -= speedZ;
 
-            // 2. Colisão
+            // Colisão
             if (checkCollisions()) {
-                gameRunning = false;
+                jogoIniciado = false;
                 console.log("GAME OVER");
                 alert("BATEU! Tente novamente.");
                 document.getElementById('tela-gameover').style.display = "flex";
                 return;
             }
-            // 3.chegada
+            // chegada
             if (posZ + 1.5 <= FINISH_LINE_Z) {
-                gameRunning = false;
+                jogoIniciado = false;
                 console.log("VENCEU!");
-                alert("PARABÉNS! VOCÊ CHEGOU!"); // Comentei para não travar a animação
+                alert("PARABÉNS! VOCÊ CHEGOU!");
             }
 
-            // 4. Movimento do Gato
+            // Movimento do Gato
             if (corrida > limite_x) { velocidade = -velocidade; }
             else if (corrida < 0) { velocidade = -velocidade; }
             corrida += velocidade;
@@ -1141,23 +1221,18 @@ function main() {
             velY += gravity;
             if (posY <= 0) { posY = 0; velY = 0; isJumping = false; }
 
-            // 5. Câmera de Corrida (Seguindo)
+            // Câmera de Corrida (Seguindo)
             P0 = [posX, 1.2, posZ + 4.0];
             Pref = [posX, 0.0, posZ - 10.0];
             V = [0.0, 1.0, 0.0];
             viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
 
-            // 6. Desenhar Gato Correndo
             drawChococat(posX, posY, posZ);
 
         } else {
             // --- ESTADO: VITÓRIA / FIM DE JOGO ---
             // ainda vou ter que mudar
         }
-
-        // --- DESENHO DO CENÁRIO (AMBIENTE) ---
-        // Isso acontece nos dois estados (rodando ou parado), 
-        // para o mundo não sumir quando você ganha.
 
         for (let i = 0; i < obstacles.length; i++) {
             let obs = obstacles[i];
@@ -1170,14 +1245,14 @@ function main() {
                 else if (obs.type === 5) drawBombomChocolate(obs.x, obs.z);
                 else if (obs.type === 6) drawBeijinho(obs.x, obs.z);
                 else if (obs.type === 4) drawFruittella(obs.x, obs.z);
+                else if (obs.type === 7) drawCupcake(obs.x, obs.z);
             }
         }
-
         atualizaPista();
 
         drawFinishLine();
 
-        // O chão acompanha o Z do gato (seja correndo ou parado no pódio)
+        // O chão acompanha o Z do chococat (seja correndo ou parado no pódio)
         drawChao(posZ);
 
         requestAnimationFrame(drawScene);
