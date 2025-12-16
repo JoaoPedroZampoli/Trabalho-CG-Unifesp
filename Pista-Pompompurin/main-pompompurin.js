@@ -329,6 +329,16 @@ function main() {
         }
     });
 
+    posX = lanes[currentLane];
+
+    const btnProxima = document.getElementById('botao-prox-fase');
+    
+    if (btnProxima) {
+        btnProxima.addEventListener("click", () => {
+            window.location.href = "index.html?fase=3";
+        });
+    }
+
     function drawCube(tam, r, g, b, add_x, add_y, add_z, sx, sy, sz, isStatic = false) {
         const vertices = setCubeVertices(tam);
 
@@ -481,6 +491,20 @@ function main() {
     resetGame();
     requestAnimationFrame(frame);
 }
+
+/* dentro da função para saber se venceu */
+/*
+    if (vitoria) {
+        console.log("Ganhou!");
+
+        // 1. Para o jogo (opcional, mas recomendado)
+        jogoIniciado = false; 
+
+        // 2. MOSTRA a tela de vitória (onde está o botão)
+        document.getElementById('tela-vitoria').style.display = "flex";
+        return; 
+    }
+*/
 
 function crossProduct(v1, v2) {
   return [

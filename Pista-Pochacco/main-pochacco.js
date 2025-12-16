@@ -591,10 +591,24 @@ function main() {
                 }
                 break;
         }
-
-        // Atualiza posX com base na pista atual
-        posX = lanes[currentLane];
     }
+
+    // Atualiza posX com base na pista atual
+    posX = lanes[currentLane];
+
+    // --- CONFIGURAÇÃO DO BOTÃO (Fica fora do drawScene) ---
+    // O Javascript fica "ouvindo" o clique desde o começo, 
+    // mas o botão está escondido, então o usuário não clica sem querer.
+    const btnProxima = document.getElementById('botao-prox-fase');
+    
+    if (btnProxima) { // Verifica se o botão existe para não dar erro
+        btnProxima.addEventListener("click", () => {
+        // Aqui fazemos o redirecionamento mantendo o mesmo arquivo HTML
+        // mas avisando que agora é a fase 2
+            window.location.href = "index.html?fase=2";
+        });
+    }
+    
 
     function drawPochacco() {
 
@@ -1119,9 +1133,15 @@ function main() {
 
         if(distPercorrida >= distVitoria && !vitoria) vitoria = true;
 
-        if(vitoria) {
+        if (vitoria) {
+            console.log("Ganhou!");
+            
+            // 1. Para o jogo (opcional, mas recomendado)
+            jogoIniciado = false; 
+
+            // 2. MOSTRA a tela de vitória (onde está o botão)
             document.getElementById('tela-vitoria').style.display = "flex";
-            return;
+            return; 
         }
 
         requestAnimationFrame(drawScene);
