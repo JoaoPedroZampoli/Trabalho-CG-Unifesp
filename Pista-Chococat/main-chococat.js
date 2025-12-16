@@ -532,14 +532,30 @@ function main() {
             { type: 2, x: 0, z: -80 },
             { type: 5, x: 2, z: -90 },
             { type: 6, x: -2, z: -110 },
-            { type: 7, x: 0, z: -120 }
+            { type: 7, x: 0, z: -120 },
+            { type: 1, x: -2, z: -130 },
+            { type: 5, x: 2, z: -95 },
+            { type: 6, x: -2, z: -115 },
+            { type: 7, x: 0, z: -125 },
+            { type: 1, x: 0, z: -145 },
+            { type: 5, x: 2, z: -148 },
+            { type: 6, x: -2, z: -205 },
+            { type: 7, x: 0, z: -214 },
+            { type: 1, x: 0, z: -135 },
+            { type: 5, x: 2, z: -140 },
+            { type: 6, x: -2, z: -200 },
+            { type: 7, x: 0, z: -210 },
+            { type: 2, x: -2, z: -220 },
+            { type: 3, x: 0, z: -240 },
+            { type: 4, x: 2, z: -250},
+            { type: 1, x: -2, z: -270 }
         ];
     }
 
     configurarObstaculos();
 
     // Final da pista
-    const FINISH_LINE_Z = -100.0;  // O quão longe é o final (ajuste conforme quiser)
+    const FINISH_LINE_Z = -300.0;  // O quão longe é o final (ajuste conforme quiser)
     let jogoIniciado = false;      // Controle para parar o jogo
     let gameOver = false;          // Controle para tela de game over
 
