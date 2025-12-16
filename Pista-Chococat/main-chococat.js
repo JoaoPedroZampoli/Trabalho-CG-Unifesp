@@ -622,14 +622,14 @@ function main() {
     const btnPodium = document.getElementById('botao-ver-podio');
 
     if (btnReset) {
-        btnProxima.addEventListener("click", () => {
-            window.location.href = "index.html?fase1";
+        btnReset.addEventListener("click", () => {
+            window.location.href = "index.html?fase=1";
         });
     }
 
     if (btnPodium) {
-        btnProxima.addEventListener("click", () => {
-            window.location.href = "Podium/podium";
+        btnPodium.addEventListener("click", () => {
+            window.location.href = "index.html?fase=podium";
         });
     }
 
@@ -1341,7 +1341,6 @@ function main() {
             if (checkCollisions()) {
                 jogoIniciado = false;
                 console.log("GAME OVER");
-                alert("BATEU! Tente novamente.");
                 document.getElementById('tela-gameover').style.display = "flex";
                 return;
             }
@@ -1349,7 +1348,6 @@ function main() {
             if (posZ + 1.5 <= FINISH_LINE_Z) {
                 jogoIniciado = false;
                 console.log("VENCEU!");
-                alert("PARABÉNS! VOCÊ CHEGOU!");
                 document.getElementById('tela-vitoria-final').style.display = "flex";
                 return;
             }

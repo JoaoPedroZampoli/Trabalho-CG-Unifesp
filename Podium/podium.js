@@ -278,11 +278,11 @@ function main() {
     let time = 0;
 
     function drawChococat() {
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         rotaciona_camera();
 
-        time += 0.15; 
+        time += 0.15;
 
         // --- LÓGICA DO PULO ---
         // Math.abs garante que ele só vá para cima (0 a 1), quicando no chão
@@ -294,61 +294,61 @@ function main() {
         let leftLimbAngle = walkCycle;
         let rightLimbAngle = -walkCycle;
 
-        const rB = 0.0, gB = 0.0, bB = 0.0; 
+        const rB = 0.0, gB = 0.0, bB = 0.0;
 
         theta_x = 0; theta_y = 0; theta_z = 0;
 
         // --- PÓDIO ---
-        
+
         // Base Prata
-        drawCube(1.0, 0.7, 0.7, 0.7, 0, -2.3, 0, 5.0, 0.5, 5.0); 
+        drawCube(1.0, 0.7, 0.7, 0.7, 0, -2.3, 0, 5.0, 0.5, 5.0);
         // Base Ouro
-        drawCube(1.0, 1.0, 0.85, 0.0, 0, -1.9, 0, 3.5, 0.8, 3.5); 
+        drawCube(1.0, 1.0, 0.85, 0.0, 0, -1.9, 0, 3.5, 0.8, 3.5);
         // Tapete
-        drawCube(1.0, 0.8, 0.0, 0.0, 0, -1.50, 0, 2.8, 0.1, 2.8); 
+        drawCube(1.0, 0.8, 0.0, 0.0, 0, -1.50, 0, 2.8, 0.1, 2.8);
 
         // --- CHOCOCAT  ---
 
         // Resetar rotações
-        theta_x = 0; theta_y = 0; theta_z = 0; 
+        theta_x = 0; theta_y = 0; theta_z = 0;
 
         // Cabeça
-        drawCube(1.0, rB, gB, bB, 0, 0 + puloY, 0, 1, 1, 1);                           
-        drawCube(0.2, rB, gB, bB, 0, -0.35 + puloY, 0.05, 5, 1.5, 5);                  
-        
+        drawCube(1.0, rB, gB, bB, 0, 0 + puloY, 0, 1, 1, 1);
+        drawCube(0.2, rB, gB, bB, 0, -0.35 + puloY, 0.05, 5, 1.5, 5);
+
         // Bigodes
-        theta_z = -80; drawCube(0.08, rB, gB, bB, 0.5, -0.2 + puloY, 0.4, 1, 6, 1);    
-        theta_z = 70; drawCube(0.08, rB, gB, bB, 0.5, -0.25 + puloY, 0.4, 1, 6, 1);   
-        theta_z = 80; drawCube(0.08, rB, gB, bB, -0.5, -0.2 + puloY, 0.4, 1, 6, 1);   
-        theta_z = -70; drawCube(0.08, rB, gB, bB, -0.5, -0.25 + puloY, 0.4, 1, 6, 1);  
+        theta_z = -80; drawCube(0.08, rB, gB, bB, 0.5, -0.2 + puloY, 0.4, 1, 6, 1);
+        theta_z = 70; drawCube(0.08, rB, gB, bB, 0.5, -0.25 + puloY, 0.4, 1, 6, 1);
+        theta_z = 80; drawCube(0.08, rB, gB, bB, -0.5, -0.2 + puloY, 0.4, 1, 6, 1);
+        theta_z = -70; drawCube(0.08, rB, gB, bB, -0.5, -0.25 + puloY, 0.4, 1, 6, 1);
         theta_z = 0;
 
         // Olhos
-        drawCube(0.2, 1.0, 1.0, 1.0, -0.3, -0.06 + puloY, 0.5, 1.5, 2, 1);  
-        drawCube(0.1, rB, gB, bB, -0.25, -0.15 + puloY, 0.6, 1, 2, 1);      
-        drawCube(0.2, 1.0, 1.0, 1.0, 0.3, -0.06 + puloY, 0.5, 1.5, 2, 1);   
-        drawCube(0.1, rB, gB, bB, 0.25, -0.15 + puloY, 0.6, 1, 2, 1);       
-        
+        drawCube(0.2, 1.0, 1.0, 1.0, -0.3, -0.06 + puloY, 0.5, 1.5, 2, 1);
+        drawCube(0.1, rB, gB, bB, -0.25, -0.15 + puloY, 0.6, 1, 2, 1);
+        drawCube(0.2, 1.0, 1.0, 1.0, 0.3, -0.06 + puloY, 0.5, 1.5, 2, 1);
+        drawCube(0.1, rB, gB, bB, 0.25, -0.15 + puloY, 0.6, 1, 2, 1);
+
         // Focinho
         drawCube(0.1, 0.5, 0.2, 0.0, 0.0, -0.2 + puloY, 0.55, 1.5, 1, 1);
-        
+
         // Orelhas
-        drawCube(0.10, 1.0, 0.97, 0.7, -0.30, 0.55 + puloY, 0.45, 1, 1, 1);  
-        drawCube(0.1, rB, gB, bB, -0.30, 0.75 + puloY, 0.4, 1, 1.5, 1.5);   
-        drawCube(0.25, rB, gB, bB, -0.30, 0.55 + puloY, 0.35, 1, 1, 1);     
-        drawCube(0.10, 1.0, 0.97, 0.7, 0.30, 0.55 + puloY, 0.45, 1, 1, 1);   
-        drawCube(0.1, rB, gB, bB, 0.30, 0.75 + puloY, 0.4, 1, 1.5, 1.5);    
-        drawCube(0.25, rB, gB, bB, 0.30, 0.55 + puloY, 0.35, 1, 1, 1);      
+        drawCube(0.10, 1.0, 0.97, 0.7, -0.30, 0.55 + puloY, 0.45, 1, 1, 1);
+        drawCube(0.1, rB, gB, bB, -0.30, 0.75 + puloY, 0.4, 1, 1.5, 1.5);
+        drawCube(0.25, rB, gB, bB, -0.30, 0.55 + puloY, 0.35, 1, 1, 1);
+        drawCube(0.10, 1.0, 0.97, 0.7, 0.30, 0.55 + puloY, 0.45, 1, 1, 1);
+        drawCube(0.1, rB, gB, bB, 0.30, 0.75 + puloY, 0.4, 1, 1.5, 1.5);
+        drawCube(0.25, rB, gB, bB, 0.30, 0.55 + puloY, 0.35, 1, 1, 1);
 
         // Rabo
         theta_x = -150; drawCube(0.1, rB, gB, bB, 0.0, -1.3 + puloY, -0.80, 1.5, 6, 1.0);
-        theta_x = -120; drawCube(0.1, rB, gB, bB, 0.0, -0.95 + puloY, -0.5, 1.5, 4, 1.0);  
+        theta_x = -120; drawCube(0.1, rB, gB, bB, 0.0, -0.95 + puloY, -0.5, 1.5, 4, 1.0);
         theta_x = 0;
 
         // Corpo
-        drawCube(0.85, rB, gB, bB, 0, -0.85 + puloY, 0.05, 0.8, 0.7, 1.1);   
-        drawCube(1.0, 0.0, 0.0, 1.0, 0, -0.55 + puloY, 0.05, 0.8, 0.1, 1.2); 
-        drawCube(0.9, rB, gB, bB, 0, -0.8 + puloY, 0.05, 0.9, 0.5, 1.2);     
+        drawCube(0.85, rB, gB, bB, 0, -0.85 + puloY, 0.05, 0.8, 0.7, 1.1);
+        drawCube(1.0, 0.0, 0.0, 1.0, 0, -0.55 + puloY, 0.05, 0.8, 0.1, 1.2);
+        drawCube(0.9, rB, gB, bB, 0, -0.8 + puloY, 0.05, 0.9, 0.5, 1.2);
 
         // Membros (Braços e Pernas também pulam)
         theta_z = leftLimbAngle;
@@ -365,13 +365,19 @@ function main() {
         theta_x = -leftLimbAngle
         drawCube(0.4, rB, gB, bB, 0.22, -1.20 + puloY, 0, 0.75, 1.6, 1.0);
 
-        theta_x = 0; 
+        theta_x = 0;
 
         requestAnimationFrame(drawChococat);
     }
 
     drawChococat();
 }
+
+document.getElementById('botao-start').addEventListener("click", () => {
+    jogoIniciado = true;
+    document.getElementById('tela-start').style.display = "none";
+    requestAnimationFrame(frame);
+});
 
 function crossProduct(v1, v2) {
     let result = [

@@ -157,10 +157,11 @@
                         <div class="texto-mensagem"> Você completou todas as fases!<br>
                             Obrigado por jogar.
                         </div>
-                        <div class="div-botao"> <button class="botao-comeca-tudo-de-novo" onclick="window.location.href='index.html'">Jogar
-                                de Novo</button>
+                        <div class="div-botao">
+                            <button class="botao-comeca-tudo-de-novo" id="botao-comeca-tudo-de-novo">Jogar de novo</button>
                         </div>
-                        <div class="div-botao"> <button class="botao-ver-podio" onclick="window.location.href='falta arrumar aquiiii'">Ver pódio</button>
+                        <div class="div-botao">
+                            <button class="botao-ver-podio" id="botao-ver-podio">Ver pódio</button>
                         </div>
                     </div>
 
@@ -178,26 +179,30 @@
         const scriptJogo = document.createElement('script');
 
         /* se quiserem testar, coloque (fase == 2) e uma distancia pequena só para ver se esta dando certo*/
-        if (fase === '5') {
+        if (fase == 'podium') {
+            console.log("--- Indo para o pódio ---");
+            scriptJogo.src = "Podium/podium.js";
+        }
+        else if (fase === '5') {
             console.log("--- FASE 5: CHOCOCAT (FINAL) ---");
             scriptJogo.src = "Pista-Chococat/main-chococat.js";
         }
         else if (fase === '4') {
             console.log("--- FASE 4: HELLO KITTY ---");
-            scriptJogo.src = "Pista-HelloKitty/main-hellokitty.js"; 
-        } 
+            scriptJogo.src = "Pista-HelloKitty/main-hellokitty.js";
+        }
         else if (fase === '3') {
             console.log("--- FASE 3: MY MELODY ---");
-            scriptJogo.src = "Pista-Melody/main-melody.js"; 
-        } 
+            scriptJogo.src = "Pista-Melody/main-melody.js";
+        }
         else if (fase === '2') {
             console.log("--- FASE 2: POCHACCO ---");
             scriptJogo.src = "Pista-Pochacco/main-pochacco.js";
-            
+
         }
         else {
             console.log("--- FASE 1: POMPOMPURIN ---");
-            scriptJogo.src = "Pista-Pompompurin/main-pompompurin.js"; 
+            scriptJogo.src = "Pista-Pompompurin/main-pompompurin.js";
         }
 
         document.body.appendChild(scriptJogo);
