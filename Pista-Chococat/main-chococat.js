@@ -480,7 +480,7 @@ function main() {
 
     //Variáveis para o movimento para frente
     let posZ = 0;        // Posição Z atual do personagem
-    let speedZ = 0.2;    // Velocidade da corrida (quão rápido ele vai para o fundo)
+    let speedZ = 0.75;    // Velocidade da corrida (quão rápido ele vai para o fundo)
 
     let velY = 0;        // velocidade vertical (pulo)
     let gravity = -0.02; // gravidade
@@ -548,14 +548,39 @@ function main() {
             { type: 2, x: -2, z: -220 },
             { type: 3, x: 0, z: -240 },
             { type: 4, x: 2, z: -250},
-            { type: 1, x: -2, z: -270 }
+            { type: 1, x: -2, z: -270 },
+            { type: 1, x: 2, z: -275 },
+            { type: 2, x: -2, z: -280 },
+            { type: 3, x: 0, z: -282 },
+            { type: 4, x: 2, z: -298 },
+            { type: 1, x: -2, z: -300 },
+            { type: 2, x: 0, z: -305 },
+            { type: 5, x: 2, z: -310 },
+            { type: 6, x: -2, z: -325 },
+            { type: 7, x: 0, z: -325 },
+            { type: 1, x: -2, z: -328 },
+            { type: 5, x: 2, z: 330 },
+            { type: 6, x: -2, z: -350 },
+            { type: 7, x: 0, z: -350 },
+            { type: 1, x: 0, z: -350 },
+            { type: 5, x: 2, z: -355},
+            { type: 6, x: -2, z: -355},
+            { type: 7, x: 0, z: -355},
+            { type: 1, x: 0, z: -360 },
+            { type: 5, x: 2, z: -360 },
+            { type: 6, x: -2, z: -370 },
+            { type: 7, x: 0, z: -375 },
+            { type: 2, x: -2, z: -380 },
+            { type: 3, x: 0, z: -383 },
+            { type: 4, x: 2, z: 385},
+            { type: 1, x: -2, z: -390 }
         ];
     }
 
     configurarObstaculos();
 
     // Final da pista
-    const FINISH_LINE_Z = -300.0;  // O quão longe é o final (ajuste conforme quiser)
+    const FINISH_LINE_Z = -400.0;  // O quão longe é o final (ajuste conforme quiser)
     let jogoIniciado = false;      // Controle para parar o jogo
     let gameOver = false;          // Controle para tela de game over
 

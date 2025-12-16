@@ -442,7 +442,7 @@ function main() {
 
     // Variáveis de vitória
     let distPercorrida = 0;
-    let distVitoria = 300;
+    let distVitoria = 200;
     let vitoria = false;
 
     function resetGame() {
@@ -539,7 +539,8 @@ function main() {
     const btnProxima = document.getElementById('botao-prox-fase');
     if (btnProxima) {
         btnProxima.addEventListener("click", () => {
-            window.location.href = "index.html?fase=3";
+            //mas avisando que agora é a fase 2
+            window.location.href = "index.html?fase=2";
         });
     }
 

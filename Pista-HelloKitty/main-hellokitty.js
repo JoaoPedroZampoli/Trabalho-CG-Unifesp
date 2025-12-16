@@ -394,7 +394,7 @@ function main() {
     const NormalBufferSphere = gl.createBuffer();
     const texcoordBuffer = gl.createBuffer();
     const IndexBuffer = gl.createBuffer();
-    
+
     // Buffers específicos para Blender
     const objVertexBuffer = gl.createBuffer();
     const objNormalBuffer = gl.createBuffer();
@@ -414,7 +414,7 @@ function main() {
             // Guardar Normais
             gl.bindBuffer(gl.ARRAY_BUFFER, objNormalBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, objData.normals, gl.STATIC_DRAW);
-            
+
             console.log("Modelo carregado com sucesso!");
         } catch (e) {
             console.error("Não consegui carregar o arquivo .obj. Você está usando um servidor local?", e);
@@ -424,7 +424,7 @@ function main() {
     carregarModeloBlender(); // Chama a função para começar a carregar
 
     gl.enable(gl.DEPTH_TEST);
-    gl.clearColor(1.0, 0.75, 0.8, 1.0); 
+    gl.clearColor(1.0, 0.75, 0.8, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     let modelViewMatrix = [];
@@ -494,13 +494,13 @@ function main() {
     }
 
     function drawMeuModeloOBJ(px, py, pz, escala, rotacaoY = 0) {
-        if (!objData) return; 
+        if (!objData) return;
 
-        gl.useProgram(program); 
+        gl.useProgram(program);
 
         const positionLocation = gl.getAttribLocation(program, 'a_position');
         const normalLocation = gl.getAttribLocation(program, 'a_normal');
-        
+
         gl.enableVertexAttribArray(positionLocation);
         gl.bindBuffer(gl.ARRAY_BUFFER, objVertexBuffer);
         gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
@@ -511,14 +511,14 @@ function main() {
 
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.translate(modelViewMatrix, px, py, pz);
-        
+
         if (rotacaoY !== 0) {
             modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(rotacaoY));
-            
+
         }
 
         modelViewMatrix = m4.scale(modelViewMatrix, escala, escala, escala);
-        
+
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
 
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_modelViewMatrix'), false, modelViewMatrix);
@@ -527,7 +527,7 @@ function main() {
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_projectionMatrix'), false, projectionMatrix);
 
         // Cor Rosa
-        gl.uniform3fv(gl.getUniformLocation(program, 'u_color'), [0.9, 0.4, 0.6]); 
+        gl.uniform3fv(gl.getUniformLocation(program, 'u_color'), [0.9, 0.4, 0.6]);
         gl.uniform3fv(gl.getUniformLocation(program, 'u_viewPosition'), new Float32Array(P0));
         gl.uniform3fv(gl.getUniformLocation(program, 'u_lightPosition'), [2.0, 5.0, 5.0]);
 
@@ -552,7 +552,7 @@ function main() {
     let posX = 0;     // posição horizontal do personagem
     let posY = 0;     // posição vertical (para pular)
     let posZ = 0;     // posicao em Z
-    let velZ = 0.25;  // velocidade para andar
+    let velZ = 0.60;  // velocidade para andar
     let velY = 0;     // velocidade vertical (pulo)
     let gravity = -0.02; // gravidade
     let jumpPower = 0.3; // força do pulo
@@ -562,7 +562,7 @@ function main() {
     let jogoIniciado = false;
 
     let distPercorrida = 0;
-    let distVitoria = 300;
+    let distVitoria = 350;
     let vitoria = false;
 
     let obstacles = [];
@@ -615,12 +615,12 @@ function main() {
                 drawBrigadeiroMorango(o.x, o.z);
             else if (o.type === "bombom")
                 drawBombomChocolate(o.x, o.z);
-            else if (o.type === "cupcake") { 
-                let corParaUsar = o.corCobertura || [1.0, 0.4, 0.7]; 
+            else if (o.type === "cupcake") {
+                let corParaUsar = o.corCobertura || [1.0, 0.4, 0.7];
                 drawCupcake(o.x, o.z, corParaUsar);
             }
-                
-            
+
+
             else
                 drawSorveteMelao(o.x, o.z);
         });
@@ -682,6 +682,16 @@ function main() {
         posX = lanes[currentLane];
     }
 
+    const btnProxima = document.getElementById('botao-prox-fase');
+
+    if (btnProxima) { // Verifica se o botão existe para não dar erro
+        btnProxima.addEventListener("click", () => {
+            // Aqui fazemos o redirecionamento mantendo o mesmo arquivo HTML
+            // mas avisando que agora é a fase 5
+            window.location.href = "index.html?fase=5";
+        });
+    }
+
     function drawHelloKitty() {
 
         posZ -= velZ; // personagem andando
@@ -719,7 +729,7 @@ function main() {
 
         //cabeça
         drawCube(1.0, rB, gB, bB, 0 + offsetX, -0.15 + offsetY, 0 - posZ, 1.2, 0.8, 1);                   // cima
-        
+
         // Bigodes
         theta_z = -60; drawCube(0.06, 0, 0, 0, 0.6 + offsetX, -0.1 + offsetY, 0.5 - posZ, 1, 3, 1);    // bigode direito
         theta_z = 50; drawCube(0.06, 0, 0, 0, 0.6 + offsetX, -0.47 + offsetY, 0.5 - posZ, 1, 3, 1);   // bigode direito embaixo
@@ -1181,10 +1191,10 @@ function main() {
     // Criando um tabuleiro de xadrez 8x8 direto na memória
     const size = 8;
     const dataChao = new Uint8Array(size * size * 4);
-    
+
     // Cores do Xadrez: Branco e Rosa Claro
-    const cWhite = [255, 255, 255]; 
-    const cPink  = [255, 182, 193]; // Rosa 'LightPink'
+    const cWhite = [255, 255, 255];
+    const cPink = [255, 182, 193]; // Rosa 'LightPink'
 
     for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
@@ -1239,23 +1249,23 @@ function main() {
         const normals = setCubeNormals();
 
         // Repetir a textura (tiling) com base no tamanho (sx, sz)
-        const repX = sx / 2; 
-        const repZ = sz / 2; 
+        const repX = sx / 2;
+        const repZ = sz / 2;
 
         const texcoords = new Float32Array([
             // Frente
-            1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 
+            1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0,
             // Esquerda
-            0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 
+            0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0,
             // Costas
-            0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 
+            0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0,
             // Direita
-            1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 
+            1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0,
             // Topo (Onde pisamos) - Repete o Xadrez
-            repX, repZ,   repX, 0,      0, repZ,   
-            0, repZ,      repX, 0,      0, 0,      
+            repX, repZ, repX, 0, 0, repZ,
+            0, repZ, repX, 0, 0, 0,
             // Fundo
-            1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0  
+            1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0
         ]);
 
         gl.enableVertexAttribArray(positionLocation);
@@ -1300,10 +1310,10 @@ function main() {
 
         partesPista.forEach((pis, indexPista) => {
             for (let i = 0; i < 3; i++) {
-                let zPos = pis.z + (i * 10); 
-                let cor = cores[(indexPista + i) % 3]; 
+                let zPos = pis.z + (i * 10);
+                let cor = cores[(indexPista + i) % 3];
 
-                let anguloFixo = 0; 
+                let anguloFixo = 0;
 
                 // LADO ESQUERDO (Parada)
                 drawMeuModeloOBJ(-6, -2, zPos, 0.6, anguloFixo, cor);
@@ -1412,7 +1422,7 @@ function degToRad(d) {
 function parseOBJ(text) {
     const webglPositions = [];
     const webglNormals = [];
-    const objPositions = [[0, 0, 0]]; 
+    const objPositions = [[0, 0, 0]];
     const objNormals = [[0, 0, 0]];
 
     const lines = text.split('\n');
@@ -1427,7 +1437,7 @@ function parseOBJ(text) {
         } else if (line.startsWith('f ')) {
             const parts = line.split(/\s+/);
             for (let j = 1; j < parts.length - 2; j++) {
-                const indicesList = [parts[1], parts[j+1], parts[j+2]];
+                const indicesList = [parts[1], parts[j + 1], parts[j + 2]];
                 indicesList.forEach(idx => {
                     const vIndex = parseInt(idx.split('/')[0]);
                     const nIndex = parseInt(idx.split('/')[2]);

@@ -483,7 +483,7 @@ function main() {
     let posX = 0;     // posição horizontal do personagem
     let posY = 0;     // posição vertical (para pular)
     let posZ = 0;     // posicao em Z
-    let velZ = 0.15;  // velocidade para andar
+    let velZ = 0.30;  // velocidade para andar
     let velY = 0;     // velocidade vertical (pulo)
     let gravity = -0.02; // gravidade
     let jumpPower = 0.3; // força do pulo
@@ -603,11 +603,10 @@ function main() {
     if (btnProxima) { // Verifica se o botão existe para não dar erro
         btnProxima.addEventListener("click", () => {
         // Aqui fazemos o redirecionamento mantendo o mesmo arquivo HTML
-        // mas avisando que agora é a fase 2
-            window.location.href = "index.html?fase=2";
+        // mas avisando que agora é a fase 3
+            window.location.href = "index.html?fase=3";
         });
     }
-    
 
     function drawPochacco() {
 

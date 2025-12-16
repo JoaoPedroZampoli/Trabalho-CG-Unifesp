@@ -661,7 +661,7 @@ function main() {
     let posX = 0;     // posição horizontal do personagem
     let posY = 0;     // posição vertical (para pular)
     let posZ = 0;     // posicao em Z
-    let velZ = 0.55;  // velocidade para andar
+    let velZ = 0.45;  // velocidade para andar
     let velY = 0;     // velocidade vertical (pulo)
     let gravity = -0.02; // gravidade
     let jumpPower = 0.3; // força do pulo
@@ -671,7 +671,7 @@ function main() {
     let jogoIniciado = false;
 
     let distPercorrida = 0;
-    let distVitoria = 300;
+    let distVitoria = 325;
     let vitoria = false;
 
     let obstacles = [];
@@ -775,6 +775,16 @@ function main() {
 
         // Atualiza posX com base na pista atual
         posX = lanes[currentLane];
+    }
+
+    const btnProxima = document.getElementById('botao-prox-fase');
+    
+    if (btnProxima) { // Verifica se o botão existe para não dar erro
+        btnProxima.addEventListener("click", () => {
+            // Aqui fazemos o redirecionamento mantendo o mesmo arquivo HTML
+            // mas avisando que agora é a fase 4
+            window.location.href = "index.html?fase=4";
+        });
     }
 
     // --- FUNÇÃO PARA DESENHAR A MELODY ---
