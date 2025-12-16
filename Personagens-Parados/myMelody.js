@@ -269,7 +269,7 @@ function main() {
         viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
         gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
     }
-
+    
     function drawMelody() {
         gl.clear(gl.COLOR_BUFFER_BIT);
 
