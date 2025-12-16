@@ -661,7 +661,7 @@ function main() {
     let posX = 0;     // posição horizontal do personagem
     let posY = 0;     // posição vertical (para pular)
     let posZ = 0;     // posicao em Z
-    let velZ = 0.15;  // velocidade para andar
+    let velZ = 0.55;  // velocidade para andar
     let velY = 0;     // velocidade vertical (pulo)
     let gravity = -0.02; // gravidade
     let jumpPower = 0.3; // força do pulo

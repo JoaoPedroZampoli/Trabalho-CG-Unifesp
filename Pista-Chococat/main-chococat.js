@@ -402,7 +402,6 @@ function main() {
     let modelViewMatrix = [];
     let inverseTransposeModelViewMatrix = [];
 
-
     // Camera Perspectiva:
     let xw_min = -2.048;
     let xw_max = 2.048;
@@ -466,23 +465,18 @@ function main() {
     }
 
     //[rotação, posição câmera, posição olhar, vetor up]
-    P0 = [0.0, 0.5, 3.0]; // posição da câmera
+    P0 = [0.0, 2.5, 3.5]; // posição da câmera
     Pref = [0.0, 0.0, -10.0]; // ponto para onde a câmera olha
     V = [0.0, 1.0, 0.0];
     viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
 
-    // Orelhas:
     let velocidade = 0.01;
     let corrida = 0;
     let limite_x = 0.2;
 
-    // Pernas:
-    let andada = 0;
-    let velAndada = 0.07;
-
     // Interação:
-    let posX = 0;     // posição horizontal do personagem
-    let posY = 0;     // posição vertical (para pular)
+    let posX = 0;        // posição horizontal do personagem
+    let posY = 0;        // posição vertical (para pular)
 
     //Variáveis para o movimento para frente
     let posZ = 0;        // Posição Z atual do personagem
@@ -526,7 +520,6 @@ function main() {
     let currentLane = 1; // começa na pista do meio
 
     //obstáculos
-
     let obstacles = [];
 
     function configurarObstaculos() {
@@ -536,16 +529,35 @@ function main() {
             { type: 3, x: 0, z: -35 },
             { type: 4, x: 2, z: -50 },
             { type: 1, x: -2, z: -65 },
-            { type: 2, x: 0, z: -80 }
+            { type: 2, x: 0, z: -80 },
+            { type: 5, x: 2, z: -90 },
+            { type: 6, x: -2, z: -110 },
+            { type: 7, x: 0, z: -120 },
+            { type: 1, x: -2, z: -130 },
+            { type: 5, x: 2, z: -95 },
+            { type: 6, x: -2, z: -115 },
+            { type: 7, x: 0, z: -125 },
+            { type: 1, x: 0, z: -145 },
+            { type: 5, x: 2, z: -148 },
+            { type: 6, x: -2, z: -205 },
+            { type: 7, x: 0, z: -214 },
+            { type: 1, x: 0, z: -135 },
+            { type: 5, x: 2, z: -140 },
+            { type: 6, x: -2, z: -200 },
+            { type: 7, x: 0, z: -210 },
+            { type: 2, x: -2, z: -220 },
+            { type: 3, x: 0, z: -240 },
+            { type: 4, x: 2, z: -250},
+            { type: 1, x: -2, z: -270 }
         ];
     }
 
     configurarObstaculos();
 
     // Final da pista
-    const FINISH_LINE_Z = -100.0; // O quão longe é o final (ajuste conforme quiser)
-    let gameRunning = false;       // Controle para parar o jogo
-    let gameOver = false;        // Controle para tela de game over
+    const FINISH_LINE_Z = -300.0;  // O quão longe é o final (ajuste conforme quiser)
+    let jogoIniciado = false;      // Controle para parar o jogo
+    let gameOver = false;          // Controle para tela de game over
 
     const bodyElement = document.querySelector("body");
     bodyElement.addEventListener("keydown", keyDown, false);
@@ -580,13 +592,10 @@ function main() {
         viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
     }
 
-    // Adicionei offsetZ nos parâmetros
-    function drawChococat(offsetX, offsetY, offsetZ) { // <--- MUDANÇA 1: Recebe Z
+    function drawChococat(offsetX, offsetY, offsetZ) {
         // Atualiza o tempo
         time += 0.30;
 
-        // --- 1. DEFINIÇÃO DOS ÂNGULOS (MÁQUINA DE ESTADOS) ---
-        // (Essa parte da lógica de animação continua igualzinha à sua)
         let armL_AngleX = 0, armR_AngleX = 0;
         let armL_AngleZ = 0, armR_AngleZ = 0;
         let legL_AngleX = 0, legR_AngleX = 0;
@@ -605,14 +614,8 @@ function main() {
             legL_AngleZ = 0; legR_AngleZ = 0;
         }
 
-        // --- 2. DESENHO ---
         const rB = 0.1, gB = 0.1, bB = 0.1;
         theta_x = 0; theta_y = 0; theta_z = 0;
-
-        // <--- MUDANÇA 2: Em TODOS os drawCube abaixo, no parâmetro Z (7º argumento),
-        // eu subtraí o offsetZ. (Ex: 0 - offsetZ).
-        // Como sua drawCube faz "-add_z", se offsetZ for -10 (fundo),
-        // 0 - (-10) = +10. A drawCube inverte para -10. O gato vai para o fundo!
 
         // Cabeça
         drawCube(1.0, rB, gB, bB, 0 + offsetX, 0 + offsetY, 0 - offsetZ, 1, 1, 1);
@@ -870,7 +873,7 @@ function main() {
 
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(90));
-        modelViewMatrix = m4.translate(modelViewMatrix, 0, -0.8, -10); //modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ); o troço desaparece
+        modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ); //modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, -0.8, posicaoZ); o troço desaparece
 
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
 
@@ -980,22 +983,198 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, conicVertices.length / 3);
     }
 
-    function drawChao(zAtualPersonagem) { // <--- MUDANÇA 3: Recebe a posição Z atual
-        // O chão agora usa 'zAtualPersonagem' para se posicionar onde o gato está.
-        // O 7º parâmetro (Z) é: -zAtualPersonagem.
-        // O último parâmetro (escala Z) aumentei para 100 para cobrir o horizonte.
+    function drawCupcake(x_pos, z_pos, corRandomica) {
 
-        // Centro
-        drawCube(1, 0.8, 0.7, 0.9, 0, -1.8, -zAtualPersonagem, 2, 1, 100);
-        // Esquerda
-        drawCube(1, 0.9, 0.5, 0.5, -2, -1.8, -zAtualPersonagem, 2, 1, 100);
-        // Direita
-        drawCube(1, 0.9, 0.5, 0.5, 2, -1.8, -zAtualPersonagem, 2, 1, 100);
+        // Cores 
+        const corForminha = [0.2, 0.6, 0.8];    // Azulzinho
+        const corMassa = [0.94, 0.90, 0.55]; // Baunilha
+        const corCobertura = corRandomica || [1.0, 0.4, 0.7];  // Rosa choque
+        const corCereja = [0.9, 0.0, 0.0];    // Vermelho
+
+        // Começa mais em baixo
+        let AtualY = -0.8;
+
+        // forminha q eh base octagonal
+
+        // Parte A: Cubo normal
+        theta_y = 0;
+        drawCube(1.0, corForminha[0], corForminha[1], corForminha[2], x_pos, AtualY, z_pos, 0.8, 0.7, 0.8);
+
+        // Parte B: Cubo rodado 45 graus (cria as pontas)
+        theta_y = 45;
+        drawCube(1.0, corForminha[0], corForminha[1], corForminha[2], x_pos, AtualY, z_pos, 0.8, 0.7, 0.8);
+
+        theta_y = 0;
+
+        // Sobe para a próxima camada
+        AtualY += 0.35 + 0.15;
+
+        // massa creme
+        drawCube(1.0, corMassa[0], corMassa[1], corMassa[2], x_pos, AtualY, -z_pos, 1.0, 0.3, 1.0);
+
+        theta_y = 45;
+        drawCube(1.0, corMassa[0], corMassa[1], corMassa[2], x_pos, AtualY, -z_pos, 1.0, 0.3, 1.0);
+        theta_y = 0;
+
+        AtualY += 0.15 + 0.15;
+
+        // cobertura - Camada 1 (Base larga)
+        // Um pouco menor que a massa (0.9)
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.9, 0.3, 0.9);
+
+        theta_y = 45;
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.9, 0.3, 0.9);
+        theta_y = 0;
+
+        AtualY += 0.15 + 0.125; // Sobe para a próxima camada (altura 0.25)
+
+        //cobertura - Camada 2 (Meio)
+        // Mais estreita (0.65)
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.65, 0.25, 0.65);
+
+        theta_y = 45;
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.65, 0.25, 0.65);
+        theta_y = 0;
+
+        AtualY += 0.125 + 0.1;
+
+        // cobertura - Camada 3 (Topo)
+        // Bem estreita (0.4)
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.4, 0.2, 0.4);
+
+        theta_y = 45;
+        drawCube(1.0, corCobertura[0], corCobertura[1], corCobertura[2], x_pos, AtualY, -z_pos, 0.4, 0.2, 0.4);
+        theta_y = 0;
+
+        AtualY += 0.1 + 0.1;
+
+        // cereja
+        drawCube(1.0, corCereja[0], corCereja[1], corCereja[2], x_pos, AtualY, -z_pos, 0.2, 0.2, 0.2);
+        // Cabinho da cereja 
+        drawCube(0.6, 0.0, 0.5, 0.0, x_pos, AtualY + 0.15, -z_pos, 0.05, 0.7, 0.05);
+        //cabo c textura
+        theta_y = 45;
+        drawCube(0.6, 0.0, 0.5, 0.0, x_pos, AtualY + 0.15, -z_pos, 0.05, 0.7, 0.05);
+        theta_y = 0;
+        //cabo inclinado
+        theta_x = 120;
+        drawCube(0.6, 0.0, 0.5, 0.0, x_pos, AtualY + 0.35, -(z_pos + 0.05), 0.05, 0.2, 0.05);
+        theta_x = 0;
+
+        // Granulado colorido 
+        let ySprinkle = AtualY - 0.35; // Altura da camada base da cobertura
+        //verde
+        drawCube(0.06, 0.0, 1.0, 0.0, x_pos + 0.35, ySprinkle, z_pos + 0.35, 1, 1, 1);
+        //amarelo
+        drawCube(0.06, 1.0, 1.0, 0.0, x_pos - 0.35, ySprinkle, z_pos + 0.35, 1, 1, 1);
+        //azul
+        drawCube(0.06, 0.0, 0.0, 1.0, x_pos + 0.35, ySprinkle, z_pos - 0.35, 1, 1, 1);
+        //laranja
+        drawCube(0.06, 1.0, 0.5, 0.0, x_pos - 0.35, ySprinkle, z_pos - 0.35, 1, 1, 1);
+        // Roxo
+        drawCube(0.06, 1.0, 0.0, 1.0, x_pos + 0.45, ySprinkle, z_pos, 1, 1, 1);
+        //  Ciano
+        drawCube(0.06, 0.0, 1.0, 1.0, x_pos - 0.45, ySprinkle, z_pos, 1, 1, 1);
+        //  Branco
+        drawCube(0.06, 1.0, 1.0, 1.0, x_pos, ySprinkle, z_pos + 0.45, 1, 1, 1);
+        // rosa
+        drawCube(0.06, 0.906, 0.329, 0.502, x_pos, ySprinkle, z_pos - 0.45, 1, 1, 1);
+
+    }
+
+    // Textura para chao
+    const textureChao = gl.createTexture();
+    const imageChao = new Image();
+    imageChao.src = "Pista-Chococat/pista-granulado.jpg";
+    imageChao.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, textureChao);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageChao);
+
+        // Allow non-power-of-two textures correctly (NO MIPMAPS)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textureChao);
+        const texLocation = gl.getUniformLocation(programText, "u_texture");
+
+        gl.uniform1i(texLocation, 0); // use TEXTURE0
+
+        drawScene();
+    };
+
+    function drawChaoTextura(tam, add_x, add_y, add_z, sx, sy, sz){
+        gl.useProgram(programText);
+
+        const positionLocation = gl.getAttribLocation(programText, 'a_position');
+        const normalLocation = gl.getAttribLocation(programText, 'a_normal');
+        const texcoordLocation = gl.getAttribLocation(programText, "a_texcoord");
+        
+        modelViewMatrix = m4.identity();
+        modelViewMatrix = m4.scale(modelViewMatrix, sx, sy, sz);
+        modelViewMatrix = m4.translate(modelViewMatrix, add_x, add_y, add_z);
+
+        inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
+
+        const modelViewMatrixUniformLocation = gl.getUniformLocation(programText,'u_modelViewMatrix');
+        const viewingMatrixUniformLocation = gl.getUniformLocation(programText,'u_viewingMatrix');
+        const projectionMatrixUniformLocation = gl.getUniformLocation(programText,'u_projectionMatrix');
+        const inverseTransposeModelViewMatrixUniformLocation = gl.getUniformLocation(programText, `u_inverseTransposeModelViewMatrix`);
+
+        const lightPositionUniformLocation = gl.getUniformLocation(programText,'u_lightPosition');
+        const viewPositionUniformLocation = gl.getUniformLocation(programText,'u_viewPosition');
+
+        gl.uniformMatrix4fv(modelViewMatrixUniformLocation,false,modelViewMatrix);
+        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation,false,inverseTransposeModelViewMatrix);
+        gl.uniformMatrix4fv(viewingMatrixUniformLocation,false,viewingMatrix);
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,projectionMatrix);
+
+        const vertices = setCubeVertices(tam);
+        const normals = setCubeNormals();
+        const texcoords = new Float32Array([
+            1,1, 1,0, 0,1, 0,1, 1,0, 0,0, // frente
+            0,1, 0,0, 1,1, 1,1, 0,0, 1,0, // esquerda
+            0,1, 0,0, 1,1, 1,1, 0,0, 1,0, // costas
+            1,1, 1,0, 0,1, 0,1, 1,0, 0,0, // direita
+            1,1, 1,0, 0,1, 0,1, 1,0, 0,0, // topo
+            1,1, 1,0, 0,1, 0,1, 1,0, 0,0  // fundo
+        ]);
+
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(normalLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, NormalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(texcoordLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, texcoords, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
+        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([1.0,1.0,1.0]));
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textureChao);
+        gl.uniform1i(gl.getUniformLocation(programText, "u_texture"), 0);
+        
+        gl.drawArrays(gl.TRIANGLES, 0, 6*6);
+    }
+
+    function drawPista() {
+        partesPista.forEach(pis => {
+            drawChaoTextura(1, 0, -1.8, pis.z, pistaLargura, 1, pistaTamanho);
+            drawChaoTextura(1, -2, -1.8, pis.z, pistaLargura, 1, pistaTamanho);
+            drawChaoTextura(1,  2, -1.8, pis.z, pistaLargura, 1, pistaTamanho);
+        });
     }
 
     function drawFinishLine() {
-        // A posição Z visual é FINISH_LINE_Z. 
-        // Como drawCube usa -Z, passamos -FINISH_LINE_Z para anular.
 
         let zPos = -FINISH_LINE_Z;
 
@@ -1080,7 +1259,7 @@ function main() {
         spawnTimer = 0;
         isJumping = false;
         gameOver = false;
-        gameRunning = false;
+        jogoIniciado = false;
 
         configurarObstaculos();
 
@@ -1103,7 +1282,7 @@ function main() {
     document.getElementById('botao-reset').addEventListener("click", resetGame);
 
     document.getElementById('botao-start').addEventListener("click", () => {
-        gameRunning = true;
+        jogoIniciado = true;
         document.getElementById('tela-start').style.display = "none";
         drawScene();
     })
@@ -1111,28 +1290,28 @@ function main() {
     function drawScene() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        if (gameRunning) {
+        if (jogoIniciado) {
             // --- ESTADO: JOGO RODANDO ---
 
-            // 1. Física
+            // Física
             posZ -= speedZ;
 
-            // 2. Colisão
+            // Colisão
             if (checkCollisions()) {
-                gameRunning = false;
+                jogoIniciado = false;
                 console.log("GAME OVER");
                 alert("BATEU! Tente novamente.");
                 document.getElementById('tela-gameover').style.display = "flex";
                 return;
             }
-            // 3.chegada
+            // chegada
             if (posZ + 1.5 <= FINISH_LINE_Z) {
-                gameRunning = false;
+                jogoIniciado = false;
                 console.log("VENCEU!");
-                alert("PARABÉNS! VOCÊ CHEGOU!"); // Comentei para não travar a animação
+                alert("PARABÉNS! VOCÊ CHEGOU!");
             }
 
-            // 4. Movimento do Gato
+            // Movimento do Gato
             if (corrida > limite_x) { velocidade = -velocidade; }
             else if (corrida < 0) { velocidade = -velocidade; }
             corrida += velocidade;
@@ -1141,23 +1320,18 @@ function main() {
             velY += gravity;
             if (posY <= 0) { posY = 0; velY = 0; isJumping = false; }
 
-            // 5. Câmera de Corrida (Seguindo)
+            // Câmera de Corrida (Seguindo)
             P0 = [posX, 1.2, posZ + 4.0];
             Pref = [posX, 0.0, posZ - 10.0];
             V = [0.0, 1.0, 0.0];
             viewingMatrix = m4.setViewingMatrix(P0, Pref, V);
 
-            // 6. Desenhar Gato Correndo
             drawChococat(posX, posY, posZ);
 
         } else {
             // --- ESTADO: VITÓRIA / FIM DE JOGO ---
             // ainda vou ter que mudar
         }
-
-        // --- DESENHO DO CENÁRIO (AMBIENTE) ---
-        // Isso acontece nos dois estados (rodando ou parado), 
-        // para o mundo não sumir quando você ganha.
 
         for (let i = 0; i < obstacles.length; i++) {
             let obs = obstacles[i];
@@ -1170,15 +1344,15 @@ function main() {
                 else if (obs.type === 5) drawBombomChocolate(obs.x, obs.z);
                 else if (obs.type === 6) drawBeijinho(obs.x, obs.z);
                 else if (obs.type === 4) drawFruittella(obs.x, obs.z);
+                else if (obs.type === 7) drawCupcake(obs.x, obs.z);
             }
         }
-
         atualizaPista();
 
         drawFinishLine();
 
-        // O chão acompanha o Z do gato (seja correndo ou parado no pódio)
-        drawChao(posZ);
+        // O chão acompanha o Z do chococat (seja correndo ou parado no pódio)
+        drawPista(posZ);
 
         requestAnimationFrame(drawScene);
     }

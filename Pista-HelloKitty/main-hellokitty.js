@@ -395,12 +395,12 @@ function main() {
     const texcoordBuffer = gl.createBuffer();
     const IndexBuffer = gl.createBuffer();
     
-    // Buffers específicos para o seu modelo do Blender
+    // Buffers específicos para Blender
     const objVertexBuffer = gl.createBuffer();
     const objNormalBuffer = gl.createBuffer();
     let objData = null; // Variável para guardar o modelo
 
-    // Função que vai lá buscar o arquivo
+    // Função que vai buscar o arquivo
     async function carregarModeloBlender() {
         try {
             const response = await fetch('rosquinhar.obj');
@@ -424,7 +424,7 @@ function main() {
     carregarModeloBlender(); // Chama a função para começar a carregar
 
     gl.enable(gl.DEPTH_TEST);
-    gl.clearColor(1.0, 0.75, 0.8, 1.0); // Azul ceu
+    gl.clearColor(1.0, 0.75, 0.8, 1.0); 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     let modelViewMatrix = [];
@@ -493,12 +493,11 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, 6 * 6);
     }
 
-    function drawMeuModeloOBJ(px, py, pz, escala) {
-        if (!objData) return; // Se ainda não carregou, não desenha nada
+    function drawMeuModeloOBJ(px, py, pz, escala, rotacaoY = 0) {
+        if (!objData) return; 
 
-        gl.useProgram(program); // Usa o programa de cores (não o de textura)
+        gl.useProgram(program); 
 
-        // Liga os atributos
         const positionLocation = gl.getAttribLocation(program, 'a_position');
         const normalLocation = gl.getAttribLocation(program, 'a_normal');
         
@@ -510,14 +509,16 @@ function main() {
         gl.bindBuffer(gl.ARRAY_BUFFER, objNormalBuffer);
         gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 
-        // Configura Matrizes
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.translate(modelViewMatrix, px, py, pz);
+        
+        if (rotacaoY !== 0) {
+            modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(rotacaoY));
+            
+        }
+
         modelViewMatrix = m4.scale(modelViewMatrix, escala, escala, escala);
         
-        // Se quiser rodar o objeto, descomente a linha abaixo:
-        // modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(Date.now() * 0.05));
-
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
 
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_modelViewMatrix'), false, modelViewMatrix);
@@ -525,11 +526,8 @@ function main() {
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_viewingMatrix'), false, viewingMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_projectionMatrix'), false, projectionMatrix);
 
-        // --- COR DO OBJETO ---
-        // Peguei essa cor do seu arquivo .mtl (Kd 0.800023 0.172818 0.214604)
-        // É um vermelho meio rosado
-        gl.uniform3fv(gl.getUniformLocation(program, 'u_color'), [0.8, 0.17, 0.21]); 
-        
+        // Cor Rosa
+        gl.uniform3fv(gl.getUniformLocation(program, 'u_color'), [0.9, 0.4, 0.6]); 
         gl.uniform3fv(gl.getUniformLocation(program, 'u_viewPosition'), new Float32Array(P0));
         gl.uniform3fv(gl.getUniformLocation(program, 'u_lightPosition'), [2.0, 5.0, 5.0]);
 
@@ -554,7 +552,7 @@ function main() {
     let posX = 0;     // posição horizontal do personagem
     let posY = 0;     // posição vertical (para pular)
     let posZ = 0;     // posicao em Z
-    let velZ = 0.15;  // velocidade para andar
+    let velZ = 0.25;  // velocidade para andar
     let velY = 0;     // velocidade vertical (pulo)
     let gravity = -0.02; // gravidade
     let jumpPower = 0.3; // força do pulo
@@ -574,24 +572,7 @@ function main() {
             let dx = Math.abs(posX - o.x);
             let dz = Math.abs(posZ - o.z);
 
-            // 1. Valores padrão para doces pequenos (brigadeiro, morango)
-            let larguraHitbox = 0.8; 
-            let alturaHitbox = 0.5;
-
-            // 2. AJUSTE PARA A ROSQUINHA (Ela é maior!)
-            if (o.type === "rosquinha") {
-                larguraHitbox = 1.2; // Aumentamos a largura (era 0.8)
-                alturaHitbox = 1.5;  // Aumentamos a altura (era 0.5) -> Assim, mesmo pulando baixo, você bate.
-            }
-
-            // 3. AJUSTE PARA O CUPCAKE (Ele é alto)
-            if (o.type === "cupcake") {
-                alturaHitbox = 1.0;
-            }
-
-            // Verifica a colisão com os valores ajustados
-            if (dx < larguraHitbox && dz < larguraHitbox && posY < alturaHitbox) {
-                console.log("Colisão detectada com: " + o.type);
+            if (dx < 0.8 && dz < 0.8 && posY < 0.5) {
                 gameOver = true;
             }
         });
@@ -599,13 +580,11 @@ function main() {
 
     function spawnObstacle() {
         const lanes = [-2, 0, 2];
-        const types = ["brigadeiro", "morango", "bombom", "melao", "cupcake", "rosquinha" ];
+        const types = ["brigadeiro", "morango", "bombom", "melao", "cupcake"];
 
-        // 1. Sorteamos o tipo e a pista ANTES de criar o objeto
         let tipoSorteado = types[Math.floor(Math.random() * types.length)];
         let laneSorteada = lanes[Math.floor(Math.random() * lanes.length)];
 
-        // 2. Criamos o objeto básico
         let novoObstaculo = {
             type: tipoSorteado,
             x: laneSorteada,
@@ -613,17 +592,14 @@ function main() {
             raio: 0.6
         };
 
-        // 3. A MÁGICA: Se for cupcake, criamos a cor AGORA e salvamos no objeto
         if (tipoSorteado === "cupcake") {
             novoObstaculo.corCobertura = [
                 0.3 + Math.random() * 0.2, // R (Vermelho)
                 0.3 + Math.random() * 0.4, // G (Verde)
                 0.3 + Math.random() * 0.6  // B (Azul)
             ];
-            // Nota: O "0.3 +" serve para a cor não ficar muito escura/preta
         }
 
-        // 4. Adiciona na lista
         obstacles.push(novoObstaculo);
     }
 
@@ -642,12 +618,9 @@ function main() {
             else if (o.type === "cupcake") { 
                 let corParaUsar = o.corCobertura || [1.0, 0.4, 0.7]; 
                 drawCupcake(o.x, o.z, corParaUsar);
-            } 
-            else if (o.type === "rosquinha") {
-                drawMeuModeloOBJ(o.x, -0.7, o.z, 0.5); 
-                let tamanhoHitbox = 1.2 * 2;
-                drawCube(1.0, 0.0, 1.0, 0.0, o.x, 0.1, o.z, tamanhoHitbox, 0.1, tamanhoHitbox);
             }
+                
+            
             else
                 drawSorveteMelao(o.x, o.z);
         });
@@ -706,8 +679,6 @@ function main() {
                 }
                 break;
         }
-
-        // Atualiza posX com base na pista atual
         posX = lanes[currentLane];
     }
 
@@ -1203,7 +1174,7 @@ function main() {
 
     }
 
-    // Textura para chao (XADREZ PROCEDURAL)
+    // Textura para chao 
     const textureChao = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, textureChao);
 
@@ -1320,6 +1291,29 @@ function main() {
         });
     }
 
+    function drawDecorations() {
+        // Cores: Rosa, Chocolate, Azul
+        const cores = [
+            [1.0, 0.85, 0.9], // Cor 1: Rosa Choque (DeepPink)
+            [1.0, 0.85, 0.9], // Cor 2: Chocolate
+        ];
+
+        partesPista.forEach((pis, indexPista) => {
+            for (let i = 0; i < 3; i++) {
+                let zPos = pis.z + (i * 10); 
+                let cor = cores[(indexPista + i) % 3]; 
+
+                let anguloFixo = 0; 
+
+                // LADO ESQUERDO (Parada)
+                drawMeuModeloOBJ(-6, -2, zPos, 0.6, anguloFixo, cor);
+
+                // LADO DIREITO (Parada)
+                drawMeuModeloOBJ(6, -2, zPos, 0.6, anguloFixo, cor);
+            }
+        });
+    }
+
     let spawnTimer = 0;
 
     function resetGame() {
@@ -1356,7 +1350,6 @@ function main() {
         }
 
         if (gameOver) {
-            // Desenhar Pochacco de frente
             document.getElementById('tela-gameover').style.display = "flex";
             return;
         }
@@ -1383,7 +1376,7 @@ function main() {
         atualizaPista();
 
         drawHelloKitty();
-        
+        drawDecorations();
 
         drawObstacles();
         drawPista();
