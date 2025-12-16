@@ -465,6 +465,182 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, 6*6);
     }
 
+    // ============================================
+    // === LÓGICA DO PIRULITO (DENTRO DA MAIN) ===
+    // ============================================
+
+    // Variável para guardar o modelo do pirulito
+    let pirulitoModel = {}; 
+
+    // Função Parser (Agora interna)
+    function parseOBJ_MultiPart(text) {
+        const objPositions = [[0, 0, 0]];
+        const objNormals = [[0, 0, 0]];
+        const geometries = {}; 
+        let currentObject = 'default';
+
+        function ensureObject(name) {
+            if (!geometries[name]) {
+                geometries[name] = { positions: [], normals: [] };
+            }
+        }
+
+        const lines = text.split('\n');
+        for (let line of lines) {
+            line = line.trim();
+            if (line === '' || line.startsWith('#')) continue;
+            
+            const parts = line.split(/\s+/);
+            const type = parts[0];
+
+            if (type === 'v') {
+                objPositions.push([parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])]);
+            } 
+            else if (type === 'vn') {
+                objNormals.push([parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])]);
+            } 
+            else if (type === 'o' || type === 'g') {
+                currentObject = parts[1] || 'unnamed';
+                ensureObject(currentObject);
+            }
+            else if (type === 'f') {
+                ensureObject(currentObject);
+                const numVerts = parts.length - 1;
+                for (let i = 0; i < numVerts - 2; ++i) {
+                    const vertIndices = [parts[1], parts[2 + i], parts[3 + i]];
+                    for (let v of vertIndices) {
+                        const indices = v.split('/');
+                        const vIndex = parseInt(indices[0]);
+                        const nIndex = parseInt(indices[2]);
+
+                        geometries[currentObject].positions.push(...objPositions[vIndex]);
+                        
+                        if (!isNaN(nIndex) && objNormals[nIndex]) {
+                            geometries[currentObject].normals.push(...objNormals[nIndex]);
+                        } else {
+                            geometries[currentObject].normals.push(0, 1, 0);
+                        }
+                    }
+                }
+            }
+        }
+        return geometries;
+    }
+
+    // Função Loader (Agora interna, acessa 'gl' do escopo da main)
+    async function loadPirulitoOBJ(url) {
+        try {
+            const response = await fetch(url);
+            const text = await response.text();
+            
+            const rawData = parseOBJ_MultiPart(text);
+
+            for (const [name, data] of Object.entries(rawData)) {
+                if (data.positions.length === 0) continue;
+
+                // Usa 'gl' do escopo pai (main)
+                const pBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, pBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.positions), gl.STATIC_DRAW);
+
+                const nBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.normals), gl.STATIC_DRAW);
+
+                pirulitoModel[name] = {
+                    positionBuffer: pBuffer,
+                    normalBuffer: nBuffer,
+                    count: data.positions.length / 3
+                };
+            }
+            console.log("Pirulito carregado! Partes encontradas:", Object.keys(pirulitoModel));
+
+        } catch (e) {
+            console.error("Erro ao carregar Pirulito:", e);
+        }
+    }
+
+    // Função Draw (Agora interna)
+    function drawPirulito(posicaoX, posicaoZ) {
+        // Verifica se carregou
+        if (Object.keys(pirulitoModel).length === 0) return;
+
+        gl.useProgram(program);
+
+        const positionLocation = gl.getAttribLocation(program, 'a_position');
+        const normalLocation = gl.getAttribLocation(program, 'a_normal');
+        const colorUniformLocation = gl.getUniformLocation(program, 'u_color');
+
+        const modelViewMatrixUniformLocation = gl.getUniformLocation(program, 'u_modelViewMatrix');
+        const viewingMatrixUniformLocation = gl.getUniformLocation(program, 'u_viewingMatrix');
+        const projectionMatrixUniformLocation = gl.getUniformLocation(program, 'u_projectionMatrix');
+        const inverseTransposeModelViewMatrixUniformLocation = gl.getUniformLocation(program, 'u_inverseTransposeModelViewMatrix');
+        const lightPositionUniformLocation = gl.getUniformLocation(program, 'u_lightPosition');
+        const viewPositionUniformLocation = gl.getUniformLocation(program, 'u_viewPosition');
+
+        // --- CONFIGURAÇÃO DE POSIÇÃO E ROTAÇÃO ---
+        modelViewMatrix = m4.identity();
+
+        // 1. ESCALA
+        modelViewMatrix = m4.scale(modelViewMatrix, 0.5, 0.5, 0.5);
+
+        // 2. CORREÇÃO "DEITADO" (Eixo X)
+        modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(-90)); 
+
+        // 3. CORREÇÃO "VIRADO PARA DIREITA" (Eixo Y)
+        modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(90));
+
+        // 4. POSIÇÃO (Translação)
+        let ajusteY = 0.0; 
+        modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, ajusteY, posicaoZ);
+        
+        inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
+
+        gl.uniformMatrix4fv(modelViewMatrixUniformLocation, false, modelViewMatrix);
+        gl.uniformMatrix4fv(inverseTransposeModelViewMatrixUniformLocation, false, inverseTransposeModelViewMatrix);
+        gl.uniformMatrix4fv(viewingMatrixUniformLocation, false, viewingMatrix);
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation, false, projectionMatrix);
+        
+        gl.uniform3fv(viewPositionUniformLocation, new Float32Array(P0));
+        gl.uniform3fv(lightPositionUniformLocation, new Float32Array([2.0, 2.0, posZ + 3.0]));
+
+        // --- LOOP DE DESENHO COM CORES ---
+        for (const [partName, partData] of Object.entries(pirulitoModel)) {
+            
+            if (partName.includes('Cylinder') && !partName.includes('.')) {
+                // Cabeça Principal
+                gl.uniform3fv(colorUniformLocation, new Float32Array([1.0, 0.4, 0.7])); // Rosa
+            } 
+            else if (partName.includes('Cylinder.002')) {
+                // Detalhe 1
+                gl.uniform3fv(colorUniformLocation, new Float32Array([0.4, 0.8, 1.0])); // Azul Claro
+            } 
+            else if (partName.includes('Cylinder.004')) {
+                // Detalhe 2
+                gl.uniform3fv(colorUniformLocation, new Float32Array([1.0, 0.9, 0.4])); // Amarelo
+            } 
+            else {
+                // O Palito
+                gl.uniform3fv(colorUniformLocation, new Float32Array([1.0, 1.0, 1.0])); // Branco
+            }
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, partData.positionBuffer);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, partData.normalBuffer);
+            gl.enableVertexAttribArray(normalLocation);
+            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
+            gl.drawArrays(gl.TRIANGLES, 0, partData.count);
+        }
+    }
+
+    // Carrega o pirulito (chamada dentro da main)
+    loadPirulitoOBJ('Pista-Melody/newLolipop.obj');
+
+    // ============================================
+
     P0 = [0.0,2.5,3.5];
     Pref = [0.0,0.0,-10.0];
     V = [0.0,1.0,0.0];
@@ -511,7 +687,7 @@ function main() {
 
     function spawnObstacle() {
         const lanes = [-2, 0, 2];
-        const types = ["brigadeiro", "morango", "bombom", "melao"];
+        const types = ["brigadeiro", "morango", "bombom", "melao", "pirulito"];
 
         obstacles.push({
             type: types[Math.floor(Math.random() * types.length)],
@@ -533,8 +709,11 @@ function main() {
                 drawBrigadeiroMorango(o.x, o.z);
             else if(o.type === "bombom")
                 drawBombomChocolate(o.x, o.z);
-            else 
+            else if(o.type === "melao")
                 drawSorveteMelao(o.x, o.z);
+            else if (o.type === "pirulito") {
+                drawPirulito(o.x, o.z);
+            }
         });
     }
 
@@ -745,8 +924,10 @@ function main() {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, textureBrig);
-        const texLocation = gl.getUniformLocation(programText, "u_texture");
+        
+        gl.useProgram(programText); // <--- CORREÇÃO AQUI
 
+        const texLocation = gl.getUniformLocation(programText, "u_texture");
         gl.uniform1i(texLocation, 0); // use TEXTURE0
 
         drawScene();
@@ -828,8 +1009,10 @@ function main() {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, textureBrigMorango);
-        const texLocation = gl.getUniformLocation(programText, "u_texture");
+        
+        gl.useProgram(programText); // <--- CORREÇÃO AQUI
 
+        const texLocation = gl.getUniformLocation(programText, "u_texture");
         gl.uniform1i(texLocation, 0); // use TEXTURE0
 
         drawScene();
@@ -911,8 +1094,10 @@ function main() {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, textureSorveteMelao);
-        const texLocation = gl.getUniformLocation(programText, "u_texture");
+        
+        gl.useProgram(programText); // <--- CORREÇÃO AQUI
 
+        const texLocation = gl.getUniformLocation(programText, "u_texture");
         gl.uniform1i(texLocation, 0); // use TEXTURE0
 
         drawScene();
@@ -1041,8 +1226,10 @@ function main() {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, textureChao);
-        const texLocation = gl.getUniformLocation(programText, "u_texture");
+        
+        gl.useProgram(programText); // <--- CORREÇÃO AQUI
 
+        const texLocation = gl.getUniformLocation(programText, "u_texture");
         gl.uniform1i(texLocation, 0); // use TEXTURE0
 
         drawScene();
