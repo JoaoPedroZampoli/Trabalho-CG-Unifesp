@@ -493,12 +493,13 @@ function main() {
         gl.drawArrays(gl.TRIANGLES, 0, 6 * 6);
     }
 
-    function drawMeuModeloOBJ(px, py, pz, escala) {
-        if (!objData) return; // Se ainda não carregou, não desenha nada
+    // Adicionei 'rotacaoX' no final dos argumentos
+    function drawMeuModeloOBJ(px, py, pz, escala, rotacaoY = 0) {
+        if (!objData) return; 
 
-        gl.useProgram(program); // Usa o programa de cores (não o de textura)
+        gl.useProgram(program); 
 
-        // Liga os atributos
+        // ... (Atributos e Buffers iguais ao anterior) ...
         const positionLocation = gl.getAttribLocation(program, 'a_position');
         const normalLocation = gl.getAttribLocation(program, 'a_normal');
         
@@ -510,14 +511,19 @@ function main() {
         gl.bindBuffer(gl.ARRAY_BUFFER, objNormalBuffer);
         gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 
-        // Configura Matrizes
+        // --- MATRIZES ---
         modelViewMatrix = m4.identity();
         modelViewMatrix = m4.translate(modelViewMatrix, px, py, pz);
+        
+        // ROTAÇÃO EXTRA (Para a animação funcionar)
+        if (rotacaoY !== 0) {
+            modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(rotacaoY));
+            // Se quiser que ela gire igual roda (cambalhota), use xRotate.
+            // Se quiser que ela gire igual pião, use yRotate.
+        }
+
         modelViewMatrix = m4.scale(modelViewMatrix, escala, escala, escala);
         
-        // Se quiser rodar o objeto, descomente a linha abaixo:
-        // modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(Date.now() * 0.05));
-
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
 
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_modelViewMatrix'), false, modelViewMatrix);
@@ -525,11 +531,8 @@ function main() {
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_viewingMatrix'), false, viewingMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_projectionMatrix'), false, projectionMatrix);
 
-        // --- COR DO OBJETO ---
-        // Peguei essa cor do seu arquivo .mtl (Kd 0.800023 0.172818 0.214604)
-        // É um vermelho meio rosado
-        gl.uniform3fv(gl.getUniformLocation(program, 'u_color'), [0.8, 0.17, 0.21]); 
-        
+        // Cor Rosa
+        gl.uniform3fv(gl.getUniformLocation(program, 'u_color'), [0.9, 0.4, 0.6]); 
         gl.uniform3fv(gl.getUniformLocation(program, 'u_viewPosition'), new Float32Array(P0));
         gl.uniform3fv(gl.getUniformLocation(program, 'u_lightPosition'), [2.0, 5.0, 5.0]);
 
@@ -554,7 +557,7 @@ function main() {
     let posX = 0;     // posição horizontal do personagem
     let posY = 0;     // posição vertical (para pular)
     let posZ = 0;     // posicao em Z
-    let velZ = 0.15;  // velocidade para andar
+    let velZ = 0.25;  // velocidade para andar
     let velY = 0;     // velocidade vertical (pulo)
     let gravity = -0.02; // gravidade
     let jumpPower = 0.3; // força do pulo
@@ -599,7 +602,7 @@ function main() {
 
     function spawnObstacle() {
         const lanes = [-2, 0, 2];
-        const types = ["brigadeiro", "morango", "bombom", "melao", "cupcake", "rosquinha" ];
+        const types = ["brigadeiro", "morango", "bombom", "melao", "cupcake"];
 
         // 1. Sorteamos o tipo e a pista ANTES de criar o objeto
         let tipoSorteado = types[Math.floor(Math.random() * types.length)];
@@ -642,12 +645,9 @@ function main() {
             else if (o.type === "cupcake") { 
                 let corParaUsar = o.corCobertura || [1.0, 0.4, 0.7]; 
                 drawCupcake(o.x, o.z, corParaUsar);
-            } 
-            else if (o.type === "rosquinha") {
-                drawMeuModeloOBJ(o.x, -0.7, o.z, 0.5); 
-                let tamanhoHitbox = 1.2 * 2;
-                drawCube(1.0, 0.0, 1.0, 0.0, o.x, 0.1, o.z, tamanhoHitbox, 0.1, tamanhoHitbox);
             }
+                
+            
             else
                 drawSorveteMelao(o.x, o.z);
         });
@@ -1320,6 +1320,32 @@ function main() {
         });
     }
 
+    function drawDecorations() {
+        // Cores: Rosa, Chocolate, Azul
+        const cores = [
+            [1.0, 0.85, 0.9], // Cor 1: Rosa Choque (DeepPink)
+            [1.0, 0.85, 0.9], // Cor 2: Chocolate
+        ];
+
+        partesPista.forEach((pis, indexPista) => {
+            for (let i = 0; i < 3; i++) {
+                let zPos = pis.z + (i * 10); 
+                let cor = cores[(indexPista + i) % 3]; 
+
+                // --- AQUI ESTÁ A MUDANÇA ---
+                // Se sua rosquinha estiver "em pé" (tipo roda), coloque 90.
+                // Se ela estiver "deitada" (tipo no prato), coloque 0.
+                let anguloFixo = 0; 
+
+                // LADO ESQUERDO (Parada)
+                drawMeuModeloOBJ(-6, -2, zPos, 0.6, anguloFixo, cor);
+
+                // LADO DIREITO (Parada)
+                drawMeuModeloOBJ(6, -2, zPos, 0.6, anguloFixo, cor);
+            }
+        });
+    }
+
     let spawnTimer = 0;
 
     function resetGame() {
@@ -1383,7 +1409,7 @@ function main() {
         atualizaPista();
 
         drawHelloKitty();
-        
+        drawDecorations();
 
         drawObstacles();
         drawPista();
