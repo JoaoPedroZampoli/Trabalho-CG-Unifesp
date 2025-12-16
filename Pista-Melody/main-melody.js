@@ -588,10 +588,12 @@ function main() {
         modelViewMatrix = m4.xRotate(modelViewMatrix, degToRad(-90)); 
 
         // 3. CORREÇÃO "VIRADO PARA DIREITA" (Eixo Y)
-        modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(90));
+        modelViewMatrix = m4.yRotate(modelViewMatrix, degToRad(0));
+
+        modelViewMatrix = m4.zRotate(modelViewMatrix, degToRad(70));
 
         // 4. POSIÇÃO (Translação)
-        let ajusteY = 0.0; 
+        let ajusteY = -1.5; 
         modelViewMatrix = m4.translate(modelViewMatrix, posicaoX, ajusteY, posicaoZ);
         
         inverseTransposeModelViewMatrix = m4.transpose(m4.inverse(modelViewMatrix));
