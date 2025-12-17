@@ -526,61 +526,18 @@ function main() {
         obstacles = [
             { type: 1, x: 2, z: -10 },
             { type: 2, x: -2, z: -20 },
-            { type: 3, x: 0, z: -35 },
             { type: 4, x: 2, z: -50 },
             { type: 1, x: -2, z: -65 },
             { type: 2, x: 0, z: -80 },
             { type: 5, x: 2, z: -90 },
-            { type: 6, x: -2, z: -110 },
-            { type: 7, x: 0, z: -120 },
-            { type: 1, x: -2, z: -130 },
             { type: 5, x: 2, z: -95 },
-            { type: 6, x: -2, z: -115 },
-            { type: 7, x: 0, z: -125 },
-            { type: 1, x: 0, z: -145 },
-            { type: 5, x: 2, z: -148 },
-            { type: 6, x: -2, z: -205 },
-            { type: 7, x: 0, z: -214 },
-            { type: 1, x: 0, z: -135 },
-            { type: 5, x: 2, z: -140 },
-            { type: 6, x: -2, z: -200 },
-            { type: 7, x: 0, z: -210 },
-            { type: 2, x: -2, z: -220 },
-            { type: 3, x: 0, z: -240 },
-            { type: 4, x: 2, z: -250},
-            { type: 1, x: -2, z: -270 },
-            { type: 1, x: 2, z: -275 },
-            { type: 2, x: -2, z: -280 },
-            { type: 3, x: 0, z: -282 },
-            { type: 4, x: 2, z: -298 },
-            { type: 1, x: -2, z: -300 },
-            { type: 2, x: 0, z: -305 },
-            { type: 5, x: 2, z: -310 },
-            { type: 6, x: -2, z: -325 },
-            { type: 7, x: 0, z: -325 },
-            { type: 1, x: -2, z: -328 },
-            { type: 5, x: 2, z: 330 },
-            { type: 6, x: -2, z: -350 },
-            { type: 7, x: 0, z: -350 },
-            { type: 1, x: 0, z: -350 },
-            { type: 5, x: 2, z: -355},
-            { type: 6, x: -2, z: -355},
-            { type: 7, x: 0, z: -355},
-            { type: 1, x: 0, z: -360 },
-            { type: 5, x: 2, z: -360 },
-            { type: 6, x: -2, z: -370 },
-            { type: 7, x: 0, z: -375 },
-            { type: 2, x: -2, z: -380 },
-            { type: 3, x: 0, z: -383 },
-            { type: 4, x: 2, z: 385},
-            { type: 1, x: -2, z: -390 }
         ];
     }
 
     configurarObstaculos();
 
     // Final da pista
-    const FINISH_LINE_Z = -5.0;  // O quão longe é o final (ajuste conforme quiser)
+    const FINISH_LINE_Z = -100.0;  // O quão longe é o final (ajuste conforme quiser)
     let jogoIniciado = false;      // Controle para parar o jogo
     let gameOver = false;          // Controle para tela de game over
 
@@ -1289,8 +1246,6 @@ function main() {
         return false; // Não bateu em nada
     }
 
-    let spawnTimer = 0;
-
     function resetGame() {
         currentLane = 1;
         posX = lanes[currentLane];
@@ -1392,8 +1347,7 @@ function main() {
 
         drawFinishLine();
 
-        // O chão acompanha o Z do chococat (seja correndo ou parado no pódio)
-        drawPista(posZ);
+        drawPista();
 
         requestAnimationFrame(drawScene);
     }

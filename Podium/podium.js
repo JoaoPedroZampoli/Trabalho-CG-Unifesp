@@ -222,6 +222,8 @@ function main() {
 
     let theta_x = 0; let theta_y = 0; let theta_z = 0;
 
+    document.getElementById('tela-start').style.display = "none";
+
     function drawCube(tam, r, g, b, add_x, add_y, add_z, sx, sy, sz) {
         vertices = setCubeVertices(tam);
 
